@@ -1,19 +1,19 @@
-﻿module DataManagement {
-    export class DataSource {
+﻿module DatastoreWorker {
+    export module DataSource {
         /* File data source */
-        private fileObject: File;
-        private fileReader: FileReader = new FileReader();
+        export var fileObject: File;
+        export var fileReader: FileReader = new FileReader();
         /* Data block structure */
-        private dataBlocks: IDataBlockSet;
+        export var dataBlocks: IDataBlockSet;
 
-        constructor(source: File) {
-            this.fileObject = source;
-            this.dataBlocks = new IDataBlockSet(source.size);
+        export function init(source: File) {
+            fileObject = source;
+            dataBlocks = new IDataBlockSet(source.size);
         }
 
-        readBytes(offs: number, len: number, cbreader: (offs: number, data: number[]) => any) {
+        export function readBytes(offs: number, len: number, cbreader: (offs: number, data: number[]) => any) {
             // Scan structure of requested data
-            var blocks = this.dataBlocks.readBlocks(offs, len);
+            var blocks = dataBlocks.readBlocks(offs, len);
             var data = [];
             /*
                 If separate OriginIDataBlocks have near origin address:
@@ -61,7 +61,7 @@
                     return;
                 }
                 // If chunk is loaded from file: process
-                this.fileReader.onloadend = (evt: any) => {
+                fileReader.onloadend = (evt: any) => {
                     if (evt.target.readyState != 2)
                         return;
 
@@ -77,8 +77,8 @@
                     resolveNextOrigin();
                 }
                 // Start loading chunk from file
-                var fileBytes = this.fileObject.slice(originBeingResolved.origin_start, originBeingResolved.origin_end+1);
-                this.fileReader.readAsArrayBuffer(fileBytes);
+                var fileBytes = fileObject.slice(originBeingResolved.origin_start, originBeingResolved.origin_end + 1);
+                fileReader.readAsArrayBuffer(fileBytes);
             };
 
             // For each block of data
@@ -102,19 +102,6 @@
             }
             // Start resolving remote blocks
             resolveNextOrigin();
-        }
-
-        insertBytes(offs: number, bytes: number[]) {
-            this.dataBlocks.insertBlock(new ModifiedIDataBlock(offs, bytes));
-        }
-
-        removeBytes(offs: number, length: number) {
-            this.dataBlocks.removeBlock(offs, offs + length - 1);
-        }
-
-        overwriteBytes(offs: number, bytes: number[]) {
-            this.removeBytes(offs, bytes.length);
-            this.insertBytes(offs, bytes);
         }
     }
 }

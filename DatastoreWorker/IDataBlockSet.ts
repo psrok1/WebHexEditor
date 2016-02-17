@@ -1,4 +1,4 @@
-﻿module DataManagement {
+﻿module DatastoreWorker {
     export class IDataBlockSet {
         private blocks: IDataBlock[];
 
@@ -186,6 +186,11 @@
             blocks[0] = blocks[0].slice(offset, blocks[0].offs_end);
             blocks[blocks.length - 1] = blocks[blocks.length - 1].slice(
                 blocks[blocks.length - 1].offs_start, offset + length - 1);
+
+            // Make a copy
+            for (var i = 1; i < blocks.length; i++)
+                blocks[i] = blocks[i].clone();
+
             return blocks;
         }
 

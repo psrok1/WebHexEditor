@@ -1,4 +1,4 @@
-﻿module DataManagement {
+﻿module DatastoreWorker {
     export abstract class IDataBlock {
         offs_start: number;
         offs_end: number;
