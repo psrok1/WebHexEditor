@@ -1,0 +1,45 @@
+﻿div.editor {
+    font-family: Courier New, Courier, monospace;
+    font-size: 12pt;
+}
+
+div.editor > div {
+    float:left;
+}
+
+.ed-offs-column {
+    color: #888;
+    padding: 0 4pt 0 4pt;
+}
+
+.ed-offs-row {
+    color: #AAA;
+}
+
+.ed-row {
+    padding: 4pt 0 4pt 0;
+}
+
+.ed-row div {
+    display: inline;
+}
+
+.ed-byte-data .ed-row div {
+    padding: 4pt 4pt 4pt 4pt;
+}
+
+.ed-offs-column div {
+    padding: 4pt 0 4pt 0;
+}
+
+.debug-marked {
+    background-color: lightsalmon;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+}
+
+span {
+    font-style: italic;
+}

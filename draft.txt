@@ -1,0 +1,91 @@
+------------------------------------------
+- HTML5 HexEditor                        -
+- DRAFT 20160212                         -
+-                                        -
+- Paweł Srokosz (C) 2016                 -
+------------------------------------------
+
+Roadmap:
+
+1. APLIKACJA BAZOWA
+    a) Opracowanie asynchronicznego przetwarzania danych z pliku:
+        * Skonstruowanie back-end'u bazującego na WebWorker
+        * Opanowanie sekwencyjnego i indeksowego operowania na pliku
+        * Przechowywanie tymczasowego stanu
+        * Stos operacji
+    b) Opracowanie podstawowego interfejsu użytkownika
+2. ROZSZERZENIE O PODSTAWOWE OPERACJE
+    a) Mechanizm zaznaczania
+        * Zaznaczanie bloków [rozłączne, bazujące na zakresach]
+        * Obsługa schowka (wytnij/kopiuj/wklej)
+    b) Funkcjonalność wielu kart
+3. KOLOROWANIE SKŁADNI
+    a) Opracowanie systemu typów danych
+        * Dwa rodzaje:
+            - bajtowy (pozwala dekodować ciągi bajtów lub poszczególne bajty w ciągach)
+            - bitowy (pozwala dokonać oznaczania na poziomie bitów)
+        * Customowy decoder
+        * Podstawowe zastosowania:
+            ASCII Decoder
+            Typy liczbowe
+    b) Back-end dla kolorowania
+        * Zapamiętywanie oznaczeń, system nazw i kolorów
+    c) Front-end dla kolorowania
+        [LUŹNY POMYSŁ: PROSTY OPIS POLA W KOLOROWYM FOOTERZE]
+        [NA DOLE WIĘKSZY PANEL ZAWIERAJĄCY ZDEKODOWANĄ ZAWARTOŚĆ]
+    d) Rozpoznawanie typu pliku
+        * Interfejs pozwalający na rozpoznawanie pliku na podstawie konkretnych bajtów
+        * Implementacja kilku prostych formatów pliku
+4. SYSTEM SEKCJI
+    a) Modyfikacja GUI: wspieranie dzielenia plików na sekcje
+    b) Wprowadzenie możliwości ręcznego i automatycznego podziału plików
+    c) Rozszerzenie modułu rozpoznającego typy plików
+5. SYSTEM PLUGINÓW
+    a) Możliwość wprowadzenia własnych typów i kolorowań poprzez podlinkowanie skryptu
+       z URL lub dopisanie poprzez LocalStorage
+
+
+--------------------------------------------------------------------
+NOTATNIK:
+
+SZYBKI POMYSŁ: KAŻDY KONTEKST DANYCH W ODDZIELNYM WEBWORKERZE
+
+Struktura danych: lista sortowana
+    ORIGIN_BLOCK 0.....35
+    DATA_BLOCK 36...42    00,0F,0F,0F,0A,A4,A2
+    ORIGIN_BLOCK 43...100
+    ORIGIN_BLOCK 101..222
+
+insertBytes     [wstawienie]
+overwriteBytes  [nadpisanie]
+removeBytes     [usunięcie]
+
+readBytes       [odczyt]
+
+
+ORIGIN_BLOCK 0.....55
+ORIGIN_BLOCK 61.....255
+
+
+USUNIĘCIE OBSZARU   [ ]
+WSTAWIENIE OBSZARU  [need to split]
+
+Algorytm usuwania obszaru:
+    Znajdź pierwszy zawierający początek lub będący tuż za tym początkiem
+    Znajdź ostatni zawierający koniec lub będący tuż przed tym końcem
+    Wykonaj usuwanie na każdym
+    Przesuń offsety dla każdego następującego po lewym skrajnym
+    Spróbuj połączyć skrajne w spójny obszar
+
+Algorytm wstawiania obszaru:
+    Znajdź blok, w który "celuje" początek obszaru
+    Jeśli taki istnieje: podziel go na dwie części
+    Wstaw w miejsce podziału nasz blok
+    Spróbuj zescalać go z poprzednikiem i następnikiem
+
+v
+01234567
+|01234567
+       v
+01234567
+0123456|7
