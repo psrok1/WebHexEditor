@@ -32,6 +32,7 @@
                     return (block.origin_start - this.origin_end) <= 128;
                 }
 
+                // Assumes that blocks will be pushed sequentially
                 pushBlock(block: OriginIDataBlock): boolean {
                     if (!this.isBlockNear(block))
                         return false;
@@ -70,15 +71,15 @@
 
                     for (var origin of originBeingResolved.origin_blocks) {
                         var chunkStartIdx = origin.origin_start - originBeingResolved.origin_start;
-                        var chunkEndIdx = origin.origin_end - originBeingResolved.origin_end;
+                        var chunkEndIdx = origin.origin_end - originBeingResolved.origin_start;
                         var dataChunk = originData.slice(chunkStartIdx, chunkEndIdx + 1);
 
-                        data.splice.apply(data, [origin.origin_start - offs, 0].concat(dataChunk));
+                        data.splice.apply(data, [origin.offs_start - offs, 0].concat(dataChunk));
                     }
                     resolveNextOrigin();
                 }
                 // Start loading chunk from file
-                var fileBytes = this.fileObject.slice(originBeingResolved.origin_start, originBeingResolved.origin_end);
+                var fileBytes = this.fileObject.slice(originBeingResolved.origin_start, originBeingResolved.origin_end+1);
                 this.fileReader.readAsArrayBuffer(fileBytes);
             };
 

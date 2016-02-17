@@ -426,32 +426,6 @@ var DataManagement;
     })();
     DataManagement.IDataBlockSet = IDataBlockSet;
 })(DataManagement || (DataManagement = {}));
-var View;
-(function (View) {
-    var Editor = (function () {
-        function Editor() {
-            var editorElement = document.createElement("div");
-            editorElement.className = "editor";
-            this.editorElement = editorElement;
-            var offsColumn = document.createElement("div");
-            offsColumn.className = "ed-offs-column";
-            editorElement.appendChild(offsColumn);
-            this.elementOffsetColumn = offsColumn;
-            var byteData = document.createElement("div");
-            byteData.className = "ed-byte-data";
-            editorElement.appendChild(byteData);
-            this.elementByteData = byteData;
-            var asciiData = document.createElement("div");
-            asciiData.className = "ed-ascii-data";
-            editorElement.appendChild(asciiData);
-            this.elementAsciiData = asciiData;
-        }
-        Editor.prototype.getHTMLElement = function () {
-            return this.editorElement;
-        };
-        return Editor;
-    })();
-})(View || (View = {}));
 var DataManagement;
 (function (DataManagement) {
     var DataSource = (function () {
@@ -482,6 +456,7 @@ var DataManagement;
                 OriginToResolve.prototype.isBlockNear = function (block) {
                     return (block.origin_start - this.origin_end) <= 128;
                 };
+                // Assumes that blocks will be pushed sequentially
                 OriginToResolve.prototype.pushBlock = function (block) {
                     if (!this.isBlockNear(block))
                         return false;
@@ -511,14 +486,14 @@ var DataManagement;
                     for (var _i = 0, _a = originBeingResolved.origin_blocks; _i < _a.length; _i++) {
                         var origin = _a[_i];
                         var chunkStartIdx = origin.origin_start - originBeingResolved.origin_start;
-                        var chunkEndIdx = origin.origin_end - originBeingResolved.origin_end;
+                        var chunkEndIdx = origin.origin_end - originBeingResolved.origin_start;
                         var dataChunk = originData.slice(chunkStartIdx, chunkEndIdx + 1);
-                        data.splice.apply(data, [origin.origin_start - offs, 0].concat(dataChunk));
+                        data.splice.apply(data, [origin.offs_start - offs, 0].concat(dataChunk));
                     }
                     resolveNextOrigin();
                 };
                 // Start loading chunk from file
-                var fileBytes = _this.fileObject.slice(originBeingResolved.origin_start, originBeingResolved.origin_end);
+                var fileBytes = _this.fileObject.slice(originBeingResolved.origin_start, originBeingResolved.origin_end + 1);
                 _this.fileReader.readAsArrayBuffer(fileBytes);
             };
             // For each block of data
@@ -560,6 +535,32 @@ var DataManagement;
     })();
     DataManagement.DataSource = DataSource;
 })(DataManagement || (DataManagement = {}));
+var View;
+(function (View) {
+    var Editor = (function () {
+        function Editor() {
+            var editorElement = document.createElement("div");
+            editorElement.className = "editor";
+            this.editorElement = editorElement;
+            var offsColumn = document.createElement("div");
+            offsColumn.className = "ed-offs-column";
+            editorElement.appendChild(offsColumn);
+            this.elementOffsetColumn = offsColumn;
+            var byteData = document.createElement("div");
+            byteData.className = "ed-byte-data";
+            editorElement.appendChild(byteData);
+            this.elementByteData = byteData;
+            var asciiData = document.createElement("div");
+            asciiData.className = "ed-ascii-data";
+            editorElement.appendChild(asciiData);
+            this.elementAsciiData = asciiData;
+        }
+        Editor.prototype.getHTMLElement = function () {
+            return this.editorElement;
+        };
+        return Editor;
+    })();
+})(View || (View = {}));
 /// <reference path="Benchmark.ts" />
 /// <reference path="IDataBlock.ts" />
 /// <reference path="IDataBlockSet.ts" />

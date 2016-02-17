@@ -29,6 +29,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="Benchmark.ts" />
+    <TypeScriptCompile Include="DataSource.ts" />
     <TypeScriptCompile Include="IDataBlock.ts" />
     <TypeScriptCompile Include="IDataBlockSet.ts" />
     <TypeScriptCompile Include="_references.ts" />
