@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebHexEditor", "WebHexEditor.csproj", "{08C03991-48FC-4072-AF90-A2D7AE343429}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatastoreWorker", "..\DatastoreWorker\DatastoreWorker.csproj", "{C4F67BE7-1FF0-4CFA-9B49-470540E0F21F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{08C03991-48FC-4072-AF90-A2D7AE343429}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08C03991-48FC-4072-AF90-A2D7AE343429}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08C03991-48FC-4072-AF90-A2D7AE343429}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4F67BE7-1FF0-4CFA-9B49-470540E0F21F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4F67BE7-1FF0-4CFA-9B49-470540E0F21F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4F67BE7-1FF0-4CFA-9B49-470540E0F21F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4F67BE7-1FF0-4CFA-9B49-470540E0F21F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

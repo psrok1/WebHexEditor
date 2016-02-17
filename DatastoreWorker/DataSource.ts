@@ -12,7 +12,6 @@
         }
 
         readBytes(offs: number, len: number, cbreader: (offs: number, data: number[]) => any) {
-            Benchmark.startTimer("DataSource.readBytes");
             // Scan structure of requested data
             var blocks = this.dataBlocks.readBlocks(offs, len);
             var data = [];
@@ -58,7 +57,6 @@
                 var originBeingResolved = originsToResolve.pop();
                 // If queue is empty: pass loaded data to target
                 if (!originBeingResolved) {
-                    Benchmark.stopTimer("DataSource.readBytes");
                     cbreader(offs, data);
                     return;
                 }
@@ -107,22 +105,16 @@
         }
 
         insertBytes(offs: number, bytes: number[]) {
-            Benchmark.startTimer("DataSource.insertBytes");
             this.dataBlocks.insertBlock(new ModifiedIDataBlock(offs, bytes));
-            Benchmark.stopTimer("DataSource.insertBytes");
         }
 
         removeBytes(offs: number, length: number) {
-            Benchmark.startTimer("DataSource.removeBytes");
             this.dataBlocks.removeBlock(offs, offs + length - 1);
-            Benchmark.stopTimer("DataSource.removeBytes");
         }
 
         overwriteBytes(offs: number, bytes: number[]) {
-            Benchmark.startTimer("DataSource.overwriteBytes");
             this.removeBytes(offs, bytes.length);
             this.insertBytes(offs, bytes);
-            Benchmark.stopTimer("DataSource.overwriteBytes");
         }
     }
 }
