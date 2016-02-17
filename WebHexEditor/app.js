@@ -426,73 +426,6 @@ var DataManagement;
     })();
     DataManagement.IDataBlockSet = IDataBlockSet;
 })(DataManagement || (DataManagement = {}));
-var DataManagement;
-(function (DataManagement) {
-    var DataSource = (function () {
-        function DataSource(source) {
-            this.fileReader = new FileReader();
-            this.fileObject = source;
-            this.dataBlocks = new DataManagement.IDataBlockSet(source.size);
-        }
-        DataSource.prototype.readBytes = function (offs, len, cbreader) {
-            var _this = this;
-            /* CAN BE OPTIMIZED:
-             * - if distance between separated Origin blocks is smaller than xxx
-             *   data for them should be loaded in one readAsArrayBuffer call
-            */
-            Benchmark.startTimer("DataSource.readBytes");
-            var blocks = this.dataBlocks.readBlocks(offs, len);
-            console.log(blocks);
-            var data = [];
-            var blocksToResolve = [];
-            var resolveNextBlock = function () {
-                var resolvingBlock = blocksToResolve.pop();
-                if (!resolvingBlock) {
-                    Benchmark.stopTimer("DataSource.readBytes");
-                    cbreader(offs, data);
-                    return;
-                }
-                _this.fileReader.onloadend = function (evt) {
-                    if (evt.target.readyState != 2)
-                        return;
-                    var originData = Array.apply([], new Uint8Array((evt.target.result)));
-                    data.splice.apply(data, [resolvingBlock.offs_start - offs, 0].concat(originData));
-                    resolveNextBlock();
-                };
-                var fileBytes = _this.fileObject.slice(resolvingBlock.origin_start, resolvingBlock.origin_end);
-                _this.fileReader.readAsArrayBuffer(fileBytes);
-            };
-            for (var _i = 0; _i < blocks.length; _i++) {
-                var block = blocks[_i];
-                if (block instanceof DataManagement.OriginIDataBlock) {
-                    blocksToResolve.push((block));
-                }
-                else if (block instanceof DataManagement.ModifiedIDataBlock) {
-                    data.splice.apply(data, [block.offs_start - offs, 0].concat(block.content));
-                }
-            }
-            resolveNextBlock();
-        };
-        DataSource.prototype.insertBytes = function (offs, bytes) {
-            Benchmark.startTimer("DataSource.insertBytes");
-            this.dataBlocks.insertBlock(new DataManagement.ModifiedIDataBlock(offs, bytes));
-            Benchmark.stopTimer("DataSource.insertBytes");
-        };
-        DataSource.prototype.removeBytes = function (offs, length) {
-            Benchmark.startTimer("DataSource.removeBytes");
-            this.dataBlocks.removeBlock(offs, offs + length - 1);
-            Benchmark.stopTimer("DataSource.removeBytes");
-        };
-        DataSource.prototype.overwriteBytes = function (offs, bytes) {
-            Benchmark.startTimer("DataSource.overwriteBytes");
-            this.removeBytes(offs, bytes.length);
-            this.insertBytes(offs, bytes);
-            Benchmark.stopTimer("DataSource.overwriteBytes");
-        };
-        return DataSource;
-    })();
-    DataManagement.DataSource = DataSource;
-})(DataManagement || (DataManagement = {}));
 var View;
 (function (View) {
     var Editor = (function () {
@@ -519,8 +452,117 @@ var View;
         return Editor;
     })();
 })(View || (View = {}));
+var DataManagement;
+(function (DataManagement) {
+    var DataSource = (function () {
+        function DataSource(source) {
+            this.fileReader = new FileReader();
+            this.fileObject = source;
+            this.dataBlocks = new DataManagement.IDataBlockSet(source.size);
+        }
+        DataSource.prototype.readBytes = function (offs, len, cbreader) {
+            var _this = this;
+            Benchmark.startTimer("DataSource.readBytes");
+            // Scan structure of requested data
+            var blocks = this.dataBlocks.readBlocks(offs, len);
+            var data = [];
+            /*
+                If separate OriginIDataBlocks have near origin address:
+                it's faster to load one big continuous fragment than lots of smaller fragments.
+                Instances of class implemented below have information about:
+                    * address range of chunk being loaded
+                    * related IDataBlocks
+            */
+            var OriginToResolve = (function () {
+                function OriginToResolve(block) {
+                    this.origin_start = block.origin_start;
+                    this.origin_end = block.origin_end;
+                    this.origin_blocks = [block];
+                }
+                OriginToResolve.prototype.isBlockNear = function (block) {
+                    return (block.origin_start - this.origin_end) <= 128;
+                };
+                OriginToResolve.prototype.pushBlock = function (block) {
+                    if (!this.isBlockNear(block))
+                        return false;
+                    this.origin_blocks.push(block);
+                    this.origin_end = block.origin_end;
+                    return true;
+                };
+                return OriginToResolve;
+            })();
+            // Queue of origins need to be resolved
+            var originsToResolve = [];
+            // Function, which resolve next origin from queue
+            var resolveNextOrigin = function () {
+                // Get next origin from queue
+                var originBeingResolved = originsToResolve.pop();
+                // If queue is empty: pass loaded data to target
+                if (!originBeingResolved) {
+                    Benchmark.stopTimer("DataSource.readBytes");
+                    cbreader(offs, data);
+                    return;
+                }
+                // If chunk is loaded from file: process
+                _this.fileReader.onloadend = function (evt) {
+                    if (evt.target.readyState != 2)
+                        return;
+                    var originData = Array.apply([], new Uint8Array((evt.target.result)));
+                    for (var _i = 0, _a = originBeingResolved.origin_blocks; _i < _a.length; _i++) {
+                        var origin = _a[_i];
+                        var chunkStartIdx = origin.origin_start - originBeingResolved.origin_start;
+                        var chunkEndIdx = origin.origin_end - originBeingResolved.origin_end;
+                        var dataChunk = originData.slice(chunkStartIdx, chunkEndIdx + 1);
+                        data.splice.apply(data, [origin.origin_start - offs, 0].concat(dataChunk));
+                    }
+                    resolveNextOrigin();
+                };
+                // Start loading chunk from file
+                var fileBytes = _this.fileObject.slice(originBeingResolved.origin_start, originBeingResolved.origin_end);
+                _this.fileReader.readAsArrayBuffer(fileBytes);
+            };
+            // For each block of data
+            for (var _i = 0; _i < blocks.length; _i++) {
+                var block = blocks[_i];
+                // Determine whether content is stored locally or need to be loaded from file.
+                if (block instanceof DataManagement.OriginIDataBlock) {
+                    // If it's "remote": add block to queue
+                    if (originsToResolve.length == 0 ||
+                        !originsToResolve[originsToResolve.length - 1].pushBlock(block)) {
+                        originsToResolve.push(new OriginToResolve(block));
+                    }
+                }
+                else if (block instanceof DataManagement.ModifiedIDataBlock) {
+                    // If it's "local": insert into buffer
+                    data.splice.apply(data, [block.offs_start - offs, 0].concat(block.content));
+                }
+            }
+            // Start resolving remote blocks
+            resolveNextOrigin();
+        };
+        DataSource.prototype.insertBytes = function (offs, bytes) {
+            Benchmark.startTimer("DataSource.insertBytes");
+            this.dataBlocks.insertBlock(new DataManagement.ModifiedIDataBlock(offs, bytes));
+            Benchmark.stopTimer("DataSource.insertBytes");
+        };
+        DataSource.prototype.removeBytes = function (offs, length) {
+            Benchmark.startTimer("DataSource.removeBytes");
+            this.dataBlocks.removeBlock(offs, offs + length - 1);
+            Benchmark.stopTimer("DataSource.removeBytes");
+        };
+        DataSource.prototype.overwriteBytes = function (offs, bytes) {
+            Benchmark.startTimer("DataSource.overwriteBytes");
+            this.removeBytes(offs, bytes.length);
+            this.insertBytes(offs, bytes);
+            Benchmark.stopTimer("DataSource.overwriteBytes");
+        };
+        return DataSource;
+    })();
+    DataManagement.DataSource = DataSource;
+})(DataManagement || (DataManagement = {}));
 /// <reference path="Benchmark.ts" />
 /// <reference path="IDataBlock.ts" />
 /// <reference path="IDataBlockSet.ts" />
+/// <reference path="DataSource.ts" />
 /// <reference path="app.ts" /> 
 //# sourceMappingURL=app.js.map
