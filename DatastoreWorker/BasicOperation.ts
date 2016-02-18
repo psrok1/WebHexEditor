@@ -1,5 +1,5 @@
 ﻿module DatastoreWorker {
-    class BasicOperation {
+    export abstract class BasicOperation {
         private cbDo: Function;
         private cbUndo: Function;
 
@@ -17,7 +17,7 @@
         }
     }
 
-    class InsertOperation extends BasicOperation {
+    export class InsertOperation extends BasicOperation {
         constructor(offs: number, bytes: number[]) {
             super(
                 /* do */
@@ -32,7 +32,7 @@
         }
     }
 
-    class RemoveOperation extends BasicOperation {
+    export class RemoveOperation extends BasicOperation {
         constructor(offs: number, length: number) {
             var removedBlocks = DataSource.dataBlocks.readBlocks(offs, length);
             super(
@@ -49,34 +49,22 @@
         }
     }
 
-    class OverwriteOperation extends BasicOperation {
+    export class OverwriteOperation extends BasicOperation {
         constructor(offs: number, bytes: number[]) {
-            var removedBlocks = DataSource.dataBlocks.readBlocks(offs, bytes.length);
+            var insertOperation = new InsertOperation(offs, bytes);
+            var removeOperation = new RemoveOperation(offs, bytes.length);
             super(
                 /* do */
                 function () {
-                    DataSource.dataBlocks.removeBlock(offs, offs + bytes.length - 1);
-                    DataSource.dataBlocks.insertBlock(new ModifiedIDataBlock(offs, bytes));
+                    removeOperation.do();
+                    insertOperation.do();
                 },
                 /* undo */
                 function () {
-                    DataSource.dataBlocks.removeBlock(offs, offs + bytes.length - 1);
-                    for (var block of removedBlocks)
-                        DataSource.dataBlocks.insertBlock(block);
+                    insertOperation.undo();
+                    removeOperation.undo();
                 }
             );
         }
     }
-    //export function insertBytes(offs: number, bytes: number[]) {
-    //    dataBlocks.insertBlock(new ModifiedIDataBlock(offs, bytes));
-    //}
-
-    //export function removeBytes(offs: number, length: number) {
-    //    dataBlocks.removeBlock(offs, offs + length - 1);
-    //}
-            
-    //export function overwriteBytes(offs: number, bytes: number[]) {
-    //    removeBytes(offs, bytes.length);
-    //    insertBytes(offs, bytes);
-    //}
 }
