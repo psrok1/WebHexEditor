@@ -22,7 +22,10 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="BasicOperation.ts" />
     <TypeScriptCompile Include="DataSource.ts" />
+    <TypeScriptCompile Include="DatastoreWorker.ts" />
+    <TypeScriptCompile Include="DatastoreWorkerRequest.ts" />
     <TypeScriptCompile Include="IDataBlock.ts" />
     <TypeScriptCompile Include="IDataBlockSet.ts" />
     <TypeScriptCompile Include="lib.core.d.ts" />
