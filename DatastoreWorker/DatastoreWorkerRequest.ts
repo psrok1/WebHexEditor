@@ -9,8 +9,11 @@
         processOverwriteRequest?(request: OverwriteRequest);
         processRemoveRequest?(request: RemoveRequest);
 
+        processReadRequest?(request: ReadRequest);
+
         processSuccessResponse?(response: SuccessResponse);
         processErrorResponse?(response: ErrorResponse);
+        processReadResponse?(response: ReadResponse);
     }
 
     export enum ErrorResponseType {
@@ -93,6 +96,19 @@
         }
     }
 
+    export class ReadRequest implements Message {
+        offset: number;
+        length: number;
+
+        constructor(offset: number, length: number) {
+            this.offset = offset;
+            this.length = length;
+        }
+
+        public accept(processor: MessageProcessor) {
+            processor.processReadRequest(this);
+    }
+
     export class SuccessResponse implements Message {
         public accept(processor: MessageProcessor) {
             processor.processSuccessResponse(this);
@@ -108,6 +124,20 @@
 
         public accept(processor: MessageProcessor) {
             processor.processErrorResponse(this);
+        }
+    }
+
+    export class ReadResponse implements Message {
+        offset: number;
+        data: number[];
+
+        constructor(offset: number, data: number[]) {
+            this.offset = offset;
+            this.data = data;
+        }
+
+        public accept(processor: MessageProcessor) {
+            processor.processReadResponse(this);
         }
     }
 }

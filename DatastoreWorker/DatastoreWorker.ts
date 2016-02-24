@@ -2,6 +2,14 @@
     var undoStack: BasicOperation[] = [];
     var redoStack: BasicOperation[] = [];
 
+    function addIntoStack(stack: BasicOperation[], element: BasicOperation) {
+        var STACK_SIZE: number = 20;
+
+        if (stack.length >= STACK_SIZE)
+            stack.splice(0, 1);
+        stack.push(element);
+    }
+
     function processRequest(e: MessageEvent) {
         class RequestProcessor implements MessageProcessor {
             processInitializeRequest(request: InitializeRequest) {
@@ -15,6 +23,7 @@
                     self.postMessage(new ErrorResponse(ErrorResponseType.NoMoreOperationsOnStack));
                 else {
                     undoOperation.undo();
+                    addIntoStack(redoStack, undoOperation);
                     self.postMessage(new SuccessResponse());
                 }
             }
@@ -24,7 +33,8 @@
                 if (!redoOperation)
                     self.postMessage(new ErrorResponse(ErrorResponseType.NoMoreOperationsOnStack));
                 else {
-                    redoOperation.do();
+                    redoOperation.do();                    
+                    addIntoStack(undoStack, redoOperation);
                     self.postMessage(new SuccessResponse());
                 }
             }
@@ -35,20 +45,27 @@
 
             processInsertRequest(request: InsertRequest) {
                 var operation = new InsertOperation(request.offset, request.data);
-                undoStack.push(operation);
+                addIntoStack(undoStack, operation);
                 self.postMessage(new SuccessResponse());           
             }
 
             processOverwriteRequest(request: OverwriteRequest) {
                 var operation = new OverwriteOperation(request.offset, request.data);
-                undoStack.push(operation);
+                addIntoStack(undoStack, operation);
                 self.postMessage(new SuccessResponse());
             }
 
             processRemoveRequest(request: RemoveRequest) {
                 var operation = new RemoveOperation(request.offset, request.length);
-                undoStack.push(operation);
+                addIntoStack(undoStack, operation);
                 self.postMessage(new SuccessResponse());
+            }
+
+            processReadRequest(request: ReadRequest) {
+                DataSource.readBytes(request.offset, request.length,
+                    function (offs: number, data: number[]) {
+                        self.postMessage(new ReadResponse(offs, data));
+                    });
             }
         }
 

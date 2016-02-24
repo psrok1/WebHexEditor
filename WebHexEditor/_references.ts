@@ -1,1 +1,2 @@
-﻿/// <reference path="app.ts" /> 
+﻿/// <reference path="..\\DatastoreWorker\\DatastoreWorkerRequest.ts" />
+/// <reference path="app.ts" /> 
