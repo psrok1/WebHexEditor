@@ -11,13 +11,13 @@
     }
 
     function processRequest(e: MessageEvent) {
-        class RequestProcessor implements MessageProcessor {
-            processInitializeRequest(request: InitializeRequest) {
+        class RequestProcessor extends MessageProcessor {
+            protected onInitializeRequest(request: InitializeRequest) {
                 DataSource.init(request.source);
                 self.postMessage(new SuccessResponse());
             }
 
-            processUndoRequest(request: UndoRequest) {
+            protected onUndoRequest(request: UndoRequest) {
                 var undoOperation = undoStack.pop();
                 if (!undoOperation)
                     self.postMessage(new ErrorResponse(ErrorResponseType.NoMoreOperationsOnStack));
@@ -28,7 +28,7 @@
                 }
             }
 
-            processRedoRequest(request: RedoRequest) {
+            protected onRedoRequest(request: RedoRequest) {
                 var redoOperation = redoStack.pop();
                 if (!redoOperation)
                     self.postMessage(new ErrorResponse(ErrorResponseType.NoMoreOperationsOnStack));
@@ -39,29 +39,29 @@
                 }
             }
 
-            processCloseRequest(request: CloseRequest) {
+            protected onCloseRequest(request: CloseRequest) {
                 self.close();
             }
 
-            processInsertRequest(request: InsertRequest) {
+            protected onInsertRequest(request: InsertRequest) {
                 var operation = new InsertOperation(request.offset, request.data);
                 addIntoStack(undoStack, operation);
                 self.postMessage(new SuccessResponse());           
             }
 
-            processOverwriteRequest(request: OverwriteRequest) {
+            protected onOverwriteRequest(request: OverwriteRequest) {
                 var operation = new OverwriteOperation(request.offset, request.data);
                 addIntoStack(undoStack, operation);
                 self.postMessage(new SuccessResponse());
             }
 
-            processRemoveRequest(request: RemoveRequest) {
+            protected onRemoveRequest(request: RemoveRequest) {
                 var operation = new RemoveOperation(request.offset, request.length);
                 addIntoStack(undoStack, operation);
                 self.postMessage(new SuccessResponse());
             }
 
-            processReadRequest(request: ReadRequest) {
+            protected onReadRequest(request: ReadRequest) {
                 DataSource.readBytes(request.offset, request.length,
                     function (offs: number, data: number[]) {
                         self.postMessage(new ReadResponse(offs, data));
@@ -71,8 +71,8 @@
 
         var requestProcessor = new RequestProcessor();
         var message: DatastoreWorker.Message = e.data;
-
-        message.accept(requestProcessor);
+        console.log(message);
+        requestProcessor.process(message);
     }
     
     /* Initialization code */

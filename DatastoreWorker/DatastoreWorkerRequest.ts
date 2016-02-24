@@ -1,144 +1,171 @@
 ﻿module DatastoreWorker {
-    export interface MessageProcessor {
-        processInitializeRequest?(request: InitializeRequest);
-        processUndoRequest?(request: UndoRequest);
-        processRedoRequest?(request: RedoRequest);
-        processCloseRequest?(request: CloseRequest);
+    export enum MessageType {
+        InitializeRequest,
+        UndoRequest,
+        RedoRequest,
+        CloseRequest,
 
-        processInsertRequest?(request: InsertRequest);
-        processOverwriteRequest?(request: OverwriteRequest);
-        processRemoveRequest?(request: RemoveRequest);
+        InsertRequest,
+        OverwriteRequest,
+        RemoveRequest,
 
-        processReadRequest?(request: ReadRequest);
+        ReadRequest,
 
-        processSuccessResponse?(response: SuccessResponse);
-        processErrorResponse?(response: ErrorResponse);
-        processReadResponse?(response: ReadResponse);
+        SuccessResponse,
+        ErrorResponse,
+        ReadResponse
+    }
+
+    export abstract class Message {
+        type: MessageType;
+
+        constructor(type: MessageType) {
+            this.type = type;
+        }
+    }
+
+    export abstract class MessageProcessor {
+        protected onInitializeRequest(request: InitializeRequest) { }
+        protected onUndoRequest(request: UndoRequest) { }
+        protected onRedoRequest(request: RedoRequest) { }
+        protected onCloseRequest(request: CloseRequest) { }
+
+        protected onInsertRequest(request: InsertRequest) { }
+        protected onOverwriteRequest(request: OverwriteRequest) { }
+        protected onRemoveRequest(request: RemoveRequest) { }
+        
+        protected onReadRequest(request: ReadRequest) { }
+        
+        protected onSuccessResponse(response: SuccessResponse) { }
+        protected onErrorResponse(response: ErrorResponse) { }
+        protected onReadResponse(response: ReadResponse) { }
+
+        process(message: Message) {
+            switch (message.type) {
+                case MessageType.InitializeRequest:
+                    return this.onInitializeRequest(<InitializeRequest>message);
+                case MessageType.UndoRequest:
+                    return this.onUndoRequest(<UndoRequest>message);
+                case MessageType.RedoRequest:
+                    return this.onRedoRequest(<RedoRequest>message);
+                case MessageType.CloseRequest:
+                    return this.onCloseRequest(<CloseRequest>message);
+                case MessageType.InsertRequest:
+                    return this.onInsertRequest(<InsertRequest>message);
+                case MessageType.OverwriteRequest:
+                    return this.onOverwriteRequest(<OverwriteRequest>message);
+                case MessageType.RemoveRequest:
+                    return this.onRemoveRequest(<RemoveRequest>message);
+                case MessageType.ReadRequest:
+                    return this.onReadRequest(<ReadRequest>message);
+                case MessageType.SuccessResponse:
+                    return this.onSuccessResponse(<SuccessResponse>message);
+                case MessageType.ErrorResponse:
+                    return this.onErrorResponse(<ErrorResponse>message);
+                case MessageType.ReadResponse:
+                    return this.onReadResponse(<ReadResponse>message);
+            }
+        }
     }
 
     export enum ErrorResponseType {
         NoMoreOperationsOnStack
     }
 
-    export interface Message {
-        accept(processor: MessageProcessor);
-    }
-
-    export class InitializeRequest implements Message {
+    export class InitializeRequest extends Message {
         source: File;
 
         constructor(source: File) {
+            super(MessageType.InitializeRequest);
             this.source = source;
         }
+    }
 
-        public accept(processor: MessageProcessor) {
-            processor.processInitializeRequest(this);
+    export class UndoRequest extends Message {
+        constructor() {
+            super(MessageType.UndoRequest);
         }
     }
 
-    export class UndoRequest implements Message {
-        public accept(processor: MessageProcessor) {
-            processor.processUndoRequest(this);
+    export class RedoRequest extends Message {
+        constructor() {
+            super(MessageType.RedoRequest);
         }
     }
 
-    export class RedoRequest implements Message {
-        public accept(processor: MessageProcessor) {
-            processor.processRedoRequest(this);
+    export class CloseRequest extends Message {
+        constructor() {
+            super(MessageType.CloseRequest);
         }
     }
 
-    export class CloseRequest implements Message {
-        public accept(processor: MessageProcessor) {
-            processor.processCloseRequest(this);
-        }
-    }
-
-    export class InsertRequest implements Message {
+    export class InsertRequest extends Message {
         offset: number;
         data: number[];
 
         constructor(offset: number, data: number[]) {
+            super(MessageType.InsertRequest);
             this.offset = offset;
             this.data = data;
         }
-
-        public accept(processor: MessageProcessor) {
-            processor.processInsertRequest(this);
-        }
     }
 
-    export class OverwriteRequest implements Message {
+    export class OverwriteRequest extends Message {
         offset: number;
         data: number[];
 
         constructor(offset: number, data: number[]) {
+            super(MessageType.OverwriteRequest);
             this.offset = offset;
             this.data = data;
         }
-
-        public accept(processor: MessageProcessor) {
-            processor.processOverwriteRequest(this);
-        }
     }
 
-    export class RemoveRequest implements Message {
+    export class RemoveRequest extends Message {
         offset: number;
         length: number;
 
         constructor(offset: number, length: number) {
+            super(MessageType.RemoveRequest);
             this.offset = offset;
             this.length = length;
         }
-
-        public accept(processor: MessageProcessor) {
-            processor.processRemoveRequest(this);
-        }
     }
 
-    export class ReadRequest implements Message {
+    export class ReadRequest extends Message {
         offset: number;
         length: number;
 
         constructor(offset: number, length: number) {
+            super(MessageType.ReadRequest);
             this.offset = offset;
             this.length = length;
         }
-
-        public accept(processor: MessageProcessor) {
-            processor.processReadRequest(this);
-        }
     }
 
-    export class SuccessResponse implements Message {
-        public accept(processor: MessageProcessor) {
-            processor.processSuccessResponse(this);
-        }
+    export class SuccessResponse extends Message {
+        constructor() {
+            super(MessageType.SuccessResponse);
+        }        
     }
 
-    export class ErrorResponse implements Message {
-        type: ErrorResponseType;
+    export class ErrorResponse extends Message {
+        errorType: ErrorResponseType;
 
         constructor(responseType: ErrorResponseType) {
-            this.type = responseType;
-        }
-
-        public accept(processor: MessageProcessor) {
-            processor.processErrorResponse(this);
+            super(MessageType.ErrorResponse);
+            this.errorType = responseType;
         }
     }
 
-    export class ReadResponse implements Message {
+    export class ReadResponse extends Message {
         offset: number;
         data: number[];
 
         constructor(offset: number, data: number[]) {
+            super(MessageType.ReadResponse);
             this.offset = offset;
             this.data = data;
-        }
-
-        public accept(processor: MessageProcessor) {
-            processor.processReadResponse(this);
         }
     }
 }
