@@ -27,6 +27,9 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="..\DatastoreWorker\DatastoreWorkerRequest.ts">
+      <Link>DatastoreWorkerRequest.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="Benchmark.ts" />
     <TypeScriptCompile Include="_references.ts" />

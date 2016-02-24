@@ -107,6 +107,7 @@
 
         public accept(processor: MessageProcessor) {
             processor.processReadRequest(this);
+        }
     }
 
     export class SuccessResponse implements Message {
