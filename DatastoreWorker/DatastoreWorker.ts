@@ -45,18 +45,21 @@
 
             protected onInsertRequest(request: InsertRequest) {
                 var operation = new InsertOperation(request.offset, request.data);
+                operation.do();
                 addIntoStack(undoStack, operation);
                 self.postMessage(new SuccessResponse());           
             }
 
             protected onOverwriteRequest(request: OverwriteRequest) {
                 var operation = new OverwriteOperation(request.offset, request.data);
+                operation.do();
                 addIntoStack(undoStack, operation);
                 self.postMessage(new SuccessResponse());
             }
 
             protected onRemoveRequest(request: RemoveRequest) {
                 var operation = new RemoveOperation(request.offset, request.length);
+                operation.do();
                 addIntoStack(undoStack, operation);
                 self.postMessage(new SuccessResponse());
             }
