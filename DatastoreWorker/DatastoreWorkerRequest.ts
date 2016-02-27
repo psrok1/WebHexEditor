@@ -1,19 +1,23 @@
-﻿module DatastoreWorker {
+﻿/**
+ * DatastoreWorker message types and definitions
+ * Defines interface between client (hex editor) and worker
+ */
+module DatastoreWorker {
     export enum MessageType {
-        InitializeRequest,
-        UndoRequest,
-        RedoRequest,
-        CloseRequest,
+        InitializeRequest,  // Applies data object to worker
+        UndoRequest,        // Undoing last operation
+        RedoRequest,        // Redoing last undoed operation
+        CloseRequest,       // Terminating worker
 
-        InsertRequest,
-        OverwriteRequest,
-        RemoveRequest,
+        InsertRequest,      // Inserts bytes into file
+        OverwriteRequest,   // Overwrites bytes in file
+        RemoveRequest,      // Removes bytes from files
 
-        ReadRequest,
+        ReadRequest,        // Reads data block from file
 
-        SuccessResponse,
-        ErrorResponse,
-        ReadResponse
+        SuccessResponse,    // Operation completed successfully
+        ErrorResponse,      // Error occured
+        ReadResponse        // Read operation completed
     }
 
     export abstract class Message {
@@ -40,6 +44,10 @@
         protected onErrorResponse(response: ErrorResponse) { }
         protected onReadResponse(response: ReadResponse) { }
 
+        /**
+         * Translates message and calls suitable processing method
+         * @param message Message object
+         */
         process(message: Message) {
             switch (message.type) {
                 case MessageType.InitializeRequest:

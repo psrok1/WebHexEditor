@@ -18,7 +18,7 @@
     }
 
     export class FileContext {
-        datastoreWorker: Worker;
+        workerInstance: DatastoreWorker.WorkerInstance;
 
         public fileSize;
         public selection;
@@ -27,13 +27,7 @@
 
         constructor(source: File, onLoad: () => any) {
             this.fileSize = source.size;
-            this.datastoreWorker = new Worker("datastore.js");
-            this.datastoreWorker.onmessage = () => {
-                onLoad();
-            }
-            this.datastoreWorker.postMessage(
-                new DatastoreWorker.InitializeRequest(source)
-            );
+            this.workerInstance = new DatastoreWorker.WorkerInstance(source, onLoad);
         }
 
         public getNumberOfRows() {
@@ -129,21 +123,26 @@
                 }
             }
 
-            // TODO: Trim last layout entry to file size
+            // TODO: Test trimming of last layout entry to file size
+            if (currentOffset > this.fileSize) {
+                layout[layout.length - 1].dataLength -= (currentOffset - this.fileSize);
+            }
             return layout;
         }
         
         public readRows(rowNo: number, rowsLimit: number, onSuccess: (data: number[], layout: DataView) => any) {
             var layout = this.getDataLayout(rowNo, rowsLimit);
-            this.datastoreWorker.onmessage = (e: MessageEvent) => {
-                var response: DatastoreWorker.ReadResponse = e.data;
-                var resultView = new DataView();
-                resultView.layout = layout;
-                // TODO: resultView.markedFields
-                onSuccess(response.data, resultView);
-            }
-            this.datastoreWorker.postMessage(
-                new DatastoreWorker.ReadRequest(layout[0].offset, rowsLimit * 16)
+            this.workerInstance.sendRequest(
+                /* request */
+                new DatastoreWorker.ReadRequest(layout[0].offset, rowsLimit * 16),
+                /* response handler */
+                (e: MessageEvent) => {
+                    var response: DatastoreWorker.ReadResponse = e.data;
+                    var resultView = new DataView();
+                    resultView.layout = layout;
+                    // TODO: resultView.markedFields
+                    onSuccess(response.data, resultView);
+                }
             );
         }
     }

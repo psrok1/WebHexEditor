@@ -1,4 +1,7 @@
 ﻿module DatastoreWorker {
+    /**
+     * Abstract class, which represents "internal data blocks"
+     */
     export abstract class IDataBlock {
         offs_start: number;
         offs_end: number;
@@ -39,6 +42,9 @@
         public abstract toString(): string;
     }
 
+    /**
+     * Origin IDBs contain information about original, unmodified data from DataSource
+     */
     export class OriginIDataBlock extends IDataBlock {
         origin_start: number;
         origin_end: number;
@@ -147,6 +153,9 @@
         }
     }
 
+    /**
+     * Modified IDBs contain information about modified areas and inserted content.
+     */
     export class ModifiedIDataBlock extends IDataBlock {
         content: number[];
 
@@ -252,118 +261,4 @@
                 this.content;
         }
     }
-
-    //export class RLEIDataBlock extends IDataBlock {
-    //    pattern: number;
-    //    length: number;
-
-    //    constructor(start: number, pattern: number, length: number) {
-    //        super(start, start + length - 1);
-    //        this.pattern = pattern;
-    //        this.length = length;
-    //    }
-
-    //    public slice(start: number, end: number) {
-    //        var ldist = start - this.offs_start;
-    //        var rdist = this.offs_end - end;
-
-    //        this.offs_start += ldist;
-    //        this.offs_end -= rdist;
-
-    //        this.length -= ldist + rdist;
-    //    }
-
-    //    public clone(): IDataBlock {
-    //        return new RLEIDataBlock(this.offs_start, this.pattern, this.length);
-    //    }
-
-    //    public mergeWith(block: IDataBlock): IDataBlock {
-    //        if (!(block instanceof RLEIDataBlock))
-    //            return null;
-
-    //        var blk = <RLEIDataBlock>(block);
-
-    //        if (blk.pattern != this.pattern)
-    //            return null;
-
-    //        // If blk precedes "this"
-    //        if (blk.offs_end + 1 == this.offs_start) {
-    //            blk.length += this.length;
-    //            blk.offs_end = this.offs_end;
-    //            return blk;
-    //        }
-    //        // If "this" precedes blk
-    //        else if (this.offs_end + 1 == blk.offs_start) {
-    //            this.length += blk.length;
-    //            this.offs_end = blk.offs_end;
-    //            return this;
-    //        } else
-    //            return null;
-    //    }
-
-    //    public split(point: number): IDataBlock[] {
-    //        if (point > this.offs_start && point <= this.offs_end) {
-    //            var l_dist = this.offs_end - (point - 1);
-    //            var r_dist = (point) - this.offs_start;
-
-    //            var n_block = new RLEIDataBlock(
-    //                this.offs_start + r_dist,
-    //                this.pattern,
-    //                this.length - r_dist
-    //            );
-    //            this.offs_end -= l_dist;
-    //            this.length -= l_dist;
-    //            return [this, n_block];
-    //        } else
-    //            return null;
-    //    }
-
-    //    public removeRange(start: number, end: number): IDataBlock[] {
-    //        /* Left or overlap cut-off */
-    //        if (start <= this.offs_start && end >= this.offs_start) {
-    //            var n_dist = (end + 1) - this.offs_start;
-    //            this.offs_start = end + 1;
-    //            if (this.offs_start <= this.offs_end) {
-    //                // Type-related data correction
-    //                this.length -= n_dist;
-    //                return [this];
-    //            }
-    //            else
-    //                return [];
-    //        }
-    //        /* Right cut-off */
-    //        else if (start > this.offs_start && start <= this.offs_end &&
-    //            end >= this.offs_end) {
-    //            var n_dist = this.offs_end - (start - 1);
-    //            this.offs_end = start - 1;
-    //            // Type-related data correction
-    //            this.length -= n_dist;
-    //            return [this];
-    //        }
-    //        /* Middle cut-off */
-    //        else if (
-    //            start > this.offs_start && start < this.offs_end &&
-    //            end > this.offs_start && end < this.offs_end) {
-
-    //            var l_dist = this.offs_end - (start - 1);
-    //            var r_dist = (end + 1) - this.offs_start;
-
-    //            var n_block = new RLEIDataBlock(
-    //                this.offs_start + r_dist,
-    //                this.pattern,
-    //                this.length - r_dist
-    //            );
-    //            this.offs_end -= l_dist;
-    //            this.length -= l_dist;
-    //            return [this, n_block];
-    //        } else
-    //            /* No cut-off */
-    //            return null;
-    //    }
-
-    //    public toString(): string {
-    //        return "RLEIDataBlock[" + this.offs_start + ".." + this.offs_end + "] -> " +
-    //            "[" + this.pattern + "] x " + this.length;
-    //    }
-    //}
 }
