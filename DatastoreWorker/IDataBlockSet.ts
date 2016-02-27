@@ -199,5 +199,12 @@
                 console.log(block.toString());
             }
         }
+
+        public getSize(): number {
+            if (this.blocks.length > 0)
+                return this.blocks[this.blocks.length - 1].offs_end + 1;
+            else
+                return 0;
+        }
     }
 }

@@ -47,21 +47,21 @@
                 var operation = new InsertOperation(request.offset, request.data);
                 operation.do();
                 addIntoStack(undoStack, operation);
-                self.postMessage(new SuccessResponse());           
+                self.postMessage(new SuccessResponse(DataSource.dataBlocks.getSize()));
             }
 
             protected onOverwriteRequest(request: OverwriteRequest) {
                 var operation = new OverwriteOperation(request.offset, request.data);
                 operation.do();
                 addIntoStack(undoStack, operation);
-                self.postMessage(new SuccessResponse());
+                self.postMessage(new SuccessResponse(DataSource.dataBlocks.getSize()));
             }
 
             protected onRemoveRequest(request: RemoveRequest) {
                 var operation = new RemoveOperation(request.offset, request.length);
                 operation.do();
                 addIntoStack(undoStack, operation);
-                self.postMessage(new SuccessResponse());
+                self.postMessage(new SuccessResponse(DataSource.dataBlocks.getSize()));
             }
 
             protected onReadRequest(request: ReadRequest) {

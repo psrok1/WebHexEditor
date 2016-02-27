@@ -31,7 +31,6 @@
       <Link>DatastoreWorkerRequest.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
-    <TypeScriptCompile Include="Benchmark.ts" />
     <TypeScriptCompile Include="FileContext.ts" />
     <TypeScriptCompile Include="_references.ts" />
   </ItemGroup>

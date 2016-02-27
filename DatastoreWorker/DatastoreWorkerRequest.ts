@@ -144,8 +144,11 @@
     }
 
     export class SuccessResponse extends Message {
-        constructor() {
+        private newFileSize: number;
+
+        constructor(newFileSize: number = 0) {
             super(MessageType.SuccessResponse);
+            this.newFileSize = newFileSize;
         }        
     }
 
