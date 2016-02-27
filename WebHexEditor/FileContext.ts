@@ -4,26 +4,27 @@
         name: string;
     }
 
-    /*shouldn't be exported*/ export interface DataLayoutElement {
+    interface DataLayoutElement {
         offset: number;
         dataLength?: number;
         section?: FileSection;
     }
 
-    /*shouldn't be exported*/ export type DataLayout = DataLayoutElement[];
+    type DataLayout = DataLayoutElement[];
 
     export class DataView {
+        data: number[];
         layout: DataLayout;
         markedFields: any[];
     }
 
     export class FileContext {
-        workerInstance: DatastoreWorker.WorkerInstance;
+        private workerInstance: DatastoreWorker.WorkerInstance;
 
-        public fileSize;
-        public selection;
-        public sections: FileSection[] = [];
-        public markedFields = [];
+        private fileSize;
+        private selection;
+        private sections: FileSection[] = [];
+        private markedFields = [];
 
         constructor(source: File, onLoad: () => any) {
             this.fileSize = source.size;
@@ -87,7 +88,7 @@
             }
 
             // Build layout array
-            while (layout.length < rowsLimit || currentOffset >= this.fileSize) {
+            while (layout.length < rowsLimit && currentOffset < this.fileSize) {
                 if (succSectionIndex !== null && currentOffset >= this.sections[succSectionIndex].startOffset) {
                     // Section?
                     layout.push({
@@ -130,7 +131,7 @@
             return layout;
         }
         
-        public readRows(rowNo: number, rowsLimit: number, onSuccess: (data: number[], layout: DataView) => any) {
+        public readRows(rowNo: number, rowsLimit: number, onSuccess: (dataview : DataView) => any) {
             var layout = this.getDataLayout(rowNo, rowsLimit);
             this.workerInstance.sendRequest(
                 /* request */
@@ -139,9 +140,10 @@
                 (e: MessageEvent) => {
                     var response: DatastoreWorker.ReadResponse = e.data;
                     var resultView = new DataView();
+                    resultView.data = response.data;
                     resultView.layout = layout;
                     // TODO: resultView.markedFields
-                    onSuccess(response.data, resultView);
+                    onSuccess(resultView);
                 }
             );
         }

@@ -18,8 +18,8 @@
 
         private handleResponse(ev: MessageEvent) {
             var currentRequest = this.requestQueue.splice(0, 1)[0];
-            currentRequest.responseHandler(ev);
             this.processNextRequest();
+            currentRequest.responseHandler(ev);
         }
 
         constructor(source: File, onInitialized: () => any) {

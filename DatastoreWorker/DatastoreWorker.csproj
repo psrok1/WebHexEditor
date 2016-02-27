@@ -28,8 +28,8 @@
     <TypeScriptCompile Include="DatastoreWorkerRequest.ts" />
     <TypeScriptCompile Include="IDataBlock.ts" />
     <TypeScriptCompile Include="IDataBlockSet.ts" />
-    <TypeScriptCompile Include="lib.core.d.ts" />
-    <TypeScriptCompile Include="lib.webworker.d.ts" />
+    <TypeScriptCompile Include="lib\lib.core.d.ts" />
+    <TypeScriptCompile Include="lib\lib.webworker.d.ts" />
     <TypeScriptCompile Include="_references.ts" />
   </ItemGroup>
   <PropertyGroup>
