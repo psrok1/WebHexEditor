@@ -39,7 +39,7 @@
                 else
                     rowsNumber += 1;
             }
-            return rowsNumber;
+            return rowsNumber; 
         }
 
         public /*private*/ getDataLayout(rowNo: number, rowsLimit: number): DataLayout {

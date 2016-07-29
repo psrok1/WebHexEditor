@@ -7,6 +7,7 @@
         private elementAsciiData: HTMLDivElement;
 
         private fileContext: Datastore.FileContext = null;
+        private fileDataview: Datastore.DataView = null;
 
         constructor() {
             var editorElement = document.createElement("div");
@@ -29,6 +30,7 @@
             this.elementAsciiData = asciiData;
         }
 
+        /***** RENDERING *****/
         private drawEmptyTemplate() {
             this.elementOffsetColumn.innerHTML = "<div>&nbsp;</div>";
             this.elementAsciiData.innerHTML = "<div class=\"ed-row\">&nbsp;</div>";
@@ -37,7 +39,6 @@
                 "<div>05</div><div>06</div><div>07</div><div>08</div><div>09</div>" +
                 "<div>0A</div><div>0B</div><div>0C</div><div>0D</div><div>0E</div><div>0F</div></div>";
         }
-
         private appendSectionRow(sectionName: string) {
             var sectionNameString = " SECTION " + sectionName + " ";
             var stringPosition = Math.floor((48 - sectionNameString.length) / 2);
@@ -50,7 +51,6 @@
             this.elementAsciiData.innerHTML += "<div class=\"ed-row\">&nbsp;</div>";
             this.elementByteData.innerHTML += "<div class=\"ed-row\"><div class=\"section-cell\">"+sectionString+"</div></div>";
         }
-
         private appendDataRow(origin: number, data: number[]) {
             /* OffsetColumn */
             var offsetElement: HTMLDivElement = document.createElement("div");
@@ -89,8 +89,7 @@
             }
             this.elementAsciiData.appendChild(row);
         }
-
-        public updateWithDataview(dataview: Datastore.DataView) {
+        private drawDataview(dataview: Datastore.DataView) {
             var origin = dataview.layout[0].offset;
 
             this.drawEmptyTemplate();
