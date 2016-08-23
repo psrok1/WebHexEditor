@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <Import Project="..\WebHexEditor\packages\Microsoft.TypeScript.MSBuild.1.8.11\tools\Microsoft.TypeScript.Default.props" Condition="Exists('..\WebHexEditor\packages\Microsoft.TypeScript.MSBuild.1.8.11\tools\Microsoft.TypeScript.Default.props')" />
+  <Import Project="..\WebHexEditor\packages\Microsoft.TypeScript.MSBuild.1.8.11\tools\Microsoft.TypeScript.NuGet.props" Condition="Exists('..\WebHexEditor\packages\Microsoft.TypeScript.MSBuild.1.8.11\tools\Microsoft.TypeScript.NuGet.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <ProjectGuid>{C4F67BE7-1FF0-4CFA-9B49-470540E0F21F}</ProjectGuid>
@@ -32,6 +33,9 @@
     <TypeScriptCompile Include="lib\lib.webworker.d.ts" />
     <TypeScriptCompile Include="_references.ts" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="build\provide.bat" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>
@@ -39,6 +43,14 @@
     <RootNamespace>DatastoreWorker</RootNamespace>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptOutFile>../WebHexEditor/dist/datastore.js</TypeScriptOutFile>
+    <TypeScriptOutDir />
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+    <TypeScriptModuleKind>None</TypeScriptModuleKind>
+  </PropertyGroup>
+  <Import Project="..\WebHexEditor\packages\Microsoft.TypeScript.MSBuild.1.8.11\tools\Microsoft.TypeScript.targets" Condition="Exists('..\WebHexEditor\packages\Microsoft.TypeScript.MSBuild.1.8.11\tools\Microsoft.TypeScript.targets')" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
   <ProjectExtensions>
     <VisualStudio>
@@ -56,8 +68,8 @@
     <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
     <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
     <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
-    <TypeScriptModuleKind>None</TypeScriptModuleKind>
-    <TypeScriptOutFile>..\WebHexEditor\datastore.js</TypeScriptOutFile>
+    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
+    <TypeScriptOutFile>../WebHexEditor/dist/js/datastore.js</TypeScriptOutFile>
     <TypeScriptOutDir>
     </TypeScriptOutDir>
     <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
@@ -70,5 +82,7 @@
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
   </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>"$(ProjectDir)\build\provide.bat" "$(SolutionDir)" "$(ProjectDir)"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

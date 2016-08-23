@@ -1,0 +1,22 @@
+﻿{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "module": "commonjs",
+    "target": "es5",
+    "jsx": "react"
+  },
+  "files": [
+    "./typings/index.d.ts",
+    "./src/Datastore/DatastoreWorkerRequest.ts",
+    "./src/Datastore/DatastoreWorkerInstance.ts",
+    "./src/Datastore/DataCache.ts",
+    "./src/Datastore/FileContext.ts",
+    "./src/Layout/Base.tsx",
+    "./src/Layout/Hello.tsx",
+    "./src/Layout/LoadModal.tsx",
+    "./src/Layout/Editor.tsx",
+    "./src/index.tsx"
+  ]
+}

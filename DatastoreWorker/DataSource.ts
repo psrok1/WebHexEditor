@@ -14,7 +14,7 @@
         export function readBytes(offs: number, len: number, cbreader: (offs: number, data: number[]) => any) {
             // Scan structure of requested data
             var blocks = dataBlocks.readBlocks(offs, len);
-            var data = [];
+            var data: number[] = [];
             /*
                 If separate OriginIDataBlocks have near origin address:
                 it's faster to load one big continuous fragment than lots of smaller fragments.

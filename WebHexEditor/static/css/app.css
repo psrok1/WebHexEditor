@@ -43,3 +43,11 @@ body {
 span {
     font-style: italic;
 }
+
+/* LoadModal.tsx */
+#drop-zone {
+    border: 2px dashed #bbb;
+    padding: 25px;
+    text-align: center;
+    color: #bbb;
+}

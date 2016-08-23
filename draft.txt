@@ -89,3 +89,124 @@ v
        v
 01234567
 0123456|7
+
+------------------------------------------
+- HTML5 HexEditor                        -
+- DRAFT 20160731                         -
+-                                        -
+- Paweł Srokosz (C) 2016                 -
+------------------------------------------
+
+Interfejs użytkownika - istotne elementy:
+    * Edytor:
+        Komponent edytora musi być możliwie maksymalnie niezależny od całej aplikacji (przede wszystkim w sensie layoutu)
+        Będzie renderowany na swoim wydzielonym scroll-boxie.
+        Komponent ma wiedzę o dostępnym viewporcie, ale musi możliwie dobrze radzić sobie ze
+        zmianami położenia i rozmiaru
+
+    * Mechanizm kart
+        Karty pozwalają na przełączanie aktualnie renderowanego edytora.
+        Umożliwia to pracę z wieloma dokumentami naraz.
+        Menedżer edytorów można potem rozszerzyć o np. splitting
+
+    Na początku spróbujemy zrobić pojedynczy edytor.
+    Komunikacja edytora ze światem:
+        * Element na którym będzie się renderował
+        * Brama danych, którą będzie odpytywał o żądany content
+
+        Elementy muszą zapewniać odpowiednią interaktywność.
+        Prawdopodobnie będzie to wymagało współpracy z jakimś obiektem na wyższym poziomie
+        np. w przypadku przechwytywania klawiatury.
+        (nie wiem jak to wygląda w HTML5 z focusem)
+        (w sumie wystarczy podczepianie handlera)
+
+Podstawowe akcje:
+    Interakcje związane będą przede wszystkim z klawiaturą i myszką.
+
+    Pole:
+        Wejście myszy:
+            Niewciśnięta?
+                Aktywacja pola
+            Wciśnięta?
+                Kontynuacja zaznaczenia - zaznacz pola sekwencyjnie
+            Wciśnięta + shift?
+                Kontynuacja zaznaczenia blokowego - zaznacz pola blokowo
+    
+        Wciśnięcie myszy LPM:
+            Rozpoczęcie zaznaczenia
+
+        Koniec wciśnięcia LPM:
+            Zakończenie zaznaczenia
+
+        Wciśnięcie PPM:
+            Menu popup
+
+        Scroll:
+            Scrollowanie :p
+
+        Podwójne wciśnięcie myszy:
+            Zaznaczenie całego markupu (późniejszy etap implementacji)
+
+    Klawiatura:
+        Strzałka:
+            Redukcja zaznaczenia do pierwszego pola
+            Odpowiednie przesunięcie (z ew. scrollowaniem jeśli wymagane)
+
+            W przypadku gdy jesteśmy w trakcie edycji: zaniechanie tej edycji
+            (wiem, że można np. przesuwać kursor wewnątrz edytowanego pola, ale kij już w to)
+        Page down/Page up:
+            Scroll o stronę - zależy od tego ile aktualnie wierszy mieści się na stronie
+        ESC:
+            Zaniechanie zaznaczenia (redukcja do pierwszego pola)
+            Zaniechanie trwającej edycji
+        Shift-strzałka:
+            Przesunięcie z zaznaczaniem sekwencyjnym
+        Shift-alt-strzałka:
+            Przesunięcie z zaznaczaniem blokowym
+        Klawisze alfanumeryczne:
+            Edycja pola/pól (potem rozpiszemy dokładny algorytm, będzie względnie prosty)
+            Na pewno pierwszy wpisany hex będzie trzymany tylko w specjalnej zmiennej
+            Po wpisaniu drugiego: zostanie już wykonany konkretny zapis
+
+    Na razie na tym etapie darujmy sobie wciskanie sekcji, row itd.
+    Warto jednak tak projektować edytor, by był na to gotowy
+    (np. na inny row-length)
+    W celu uelastycznienia offsetu musimy chyba zmienić FileContext.
+    W ogóle ten cały datastore to chyba powinien być element modułu edytora :P
+    A ten cały FileContext na razie to już kompletna prowizorka - do przebudowy!
+
+Stan edytora musi wyróżniać następujące elementy:
+    * Pending/Ready
+    * Focused/Not focused
+    * Selection
+    * Current first row
+    * Rows by page
+    * Pending edit (wartość, która po zakończeniu edycji zostanie wpisana)
+    * Scroll state
+    * Interactivity state
+
+    Interaktywność również ma swoich kilka stanów:
+        -> No interactive (brak reakcji na zdarzenia, wszystko wyszarzone)
+        -> Only popup (tryb interakcji w wypadku, gdy otwarty jest popup menu)
+           Wtedy powinniśmy wyłącznie móc wciskać przyciski menu i ew. zareagować na wciśnięcie edytora,
+           by popup zamknąć
+        -> Full interactivity
+
+Ładowanie pliku (na poziomie menedżera kart):
+    Można w sumie również to oddać w ręce edytora.
+    Zaczęłoby się od stanu pending i edytor sam by świetnie skontrolował moment, w którym
+    dane zostałyby już załadowane.
+
+Proponowany szkielet klas:
+    * Editor
+    * Component
+        |
+        |_ ScrollBox (btw, muszę wykminić jakiś vertical pseudoscroll)
+        |
+        |_ Row
+        |   |
+        |   |_ ValueRow
+        |   |
+        |   |_ SectionRow
+        |
+        |_ Cell

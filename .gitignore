@@ -183,7 +183,6 @@ ClientBin/
 *.dbproj.schemaview
 *.pfx
 *.publishsettings
-node_modules/
 orleans.codegen.cs
 
 # RIA/Silverlight projects
@@ -235,6 +234,16 @@ _Pvt_Extensions
 # FAKE - F# Make
 .fake/
 
+# NPM modules
+node_modules/
+
+# Exception for external definitions
+!node_modules/*.d.ts
+
+# Ignore Typings
+typings/
+
 # TypeScript generated files
 *.js
 *.js.map
+!webpack.config.js

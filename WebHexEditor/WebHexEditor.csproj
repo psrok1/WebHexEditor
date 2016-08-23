@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <Import Project="packages\Microsoft.TypeScript.MSBuild.1.8.11\tools\Microsoft.TypeScript.Default.props" Condition="Exists('packages\Microsoft.TypeScript.MSBuild.1.8.11\tools\Microsoft.TypeScript.Default.props')" />
+  <Import Project="packages\Microsoft.TypeScript.MSBuild.1.8.11\tools\Microsoft.TypeScript.NuGet.props" Condition="Exists('packages\Microsoft.TypeScript.MSBuild.1.8.11\tools\Microsoft.TypeScript.NuGet.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <ProjectGuid>{08C03991-48FC-4072-AF90-A2D7AE343429}</ProjectGuid>
@@ -22,28 +23,46 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app.css" />
+    <Content Include="static\css\app.css" />
+    <Content Include="src\Editor\style.css" />
     <Content Include="index.html" />
-    <Content Include="web.config" />
+    <Content Include="web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="webpack.config.js" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="..\DatastoreWorker\DatastoreWorkerRequest.ts">
-      <Link>DatastoreWorkerRequest.ts</Link>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="app.ts" />
-    <TypeScriptCompile Include="Converters.ts" />
-    <TypeScriptCompile Include="DatastoreWorkerInstance.ts" />
-    <TypeScriptCompile Include="FileContext.ts" />
-    <TypeScriptCompile Include="Tests.ts" />
-    <TypeScriptCompile Include="_references.ts" />
+    <TypeScriptCompile Include="node_modules\golden-layout.d.ts" />
+    <TypeScriptCompile Include="node_modules\react-virtualized.d.ts" />
+    <TypeScriptCompile Include="src\Datastore\DataCache.ts" />
+    <TypeScriptCompile Include="src\Datastore\DatastoreWorkerRequest.ts" />
+    <TypeScriptCompile Include="src\Datastore\FileContext.ts" />
+    <TypeScriptCompile Include="src\index.tsx" />
+    <TypeScriptCompile Include="src\Converters.ts" />
+    <TypeScriptCompile Include="src\Datastore\DatastoreWorkerInstance.ts" />
+    <TypeScriptCompile Include="src\Editor\_Editor.ts" />
+    <TypeScriptCompile Include="src\Layout\Base.tsx" />
+    <TypeScriptCompile Include="src\Layout\Editor.tsx" />
+    <TypeScriptCompile Include="src\Layout\Hello.tsx" />
+    <TypeScriptCompile Include="src\Layout\LoadModal.tsx" />
+    <TypeScriptCompile Include="src\Tests.ts" />
+    <TypeScriptCompile Include="typings\index.d.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="package.json" />
+    <Content Include="typings.json" />
+    <Content Include="packages.config" />
+    <Content Include="tsconfig.json" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
     <None Include="web.Release.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="dist\" />
+    <Folder Include="static\images\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
@@ -52,6 +71,13 @@
     <RootNamespace>WebHexEditor</RootNamespace>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptOutFile>dist/js/app.js</TypeScriptOutFile>
+    <TypeScriptOutDir />
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
+  <Import Project="packages\Microsoft.TypeScript.MSBuild.1.8.11\tools\Microsoft.TypeScript.targets" Condition="Exists('packages\Microsoft.TypeScript.MSBuild.1.8.11\tools\Microsoft.TypeScript.targets')" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
   <ProjectExtensions>
     <VisualStudio>
@@ -75,11 +101,11 @@
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptTarget>ES5</TypeScriptTarget>
-    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptJSXEmit>React</TypeScriptJSXEmit>
     <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
     <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
-    <TypeScriptModuleKind>None</TypeScriptModuleKind>
-    <TypeScriptOutFile>app.js</TypeScriptOutFile>
+    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
+    <TypeScriptOutFile>dist/js/app.js</TypeScriptOutFile>
     <TypeScriptOutDir />
     <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
     <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
@@ -90,5 +116,4 @@
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
   </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
 </Project>

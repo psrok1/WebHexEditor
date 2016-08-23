@@ -106,7 +106,7 @@
                 lastBlock = 0;
             
             // Offset moving
-            var prevOffset;
+            var prevOffset: number;
             if (this.blocks[lastBlock - 1])
                 prevOffset = (this.blocks[lastBlock - 1].offs_end + 1)
             else
