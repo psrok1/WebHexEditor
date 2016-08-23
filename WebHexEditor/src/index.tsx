@@ -1,50 +1,17 @@
 ﻿import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { Hello } from "./Layout/Hello";
-import GoldenLayout = require('golden-layout');
+import { Jumbotron } from "react-bootstrap";
 
-import FileContext from "./Datastore/FileContext.ts"
+import { initLayout } from "./Layout/Base.tsx";
+import MainMenu from "./Layout/MainMenu";
 
-var f = new FileContext(new File([], "xdd"), () => { });
+window.onload = () => {
+    ReactDOM.render((
+        <section>
+            <MainMenu />
+            <div id="layout" />
+        </section>
+        ), document.body);
 
-let layout = new GoldenLayout({
-    content: [
-        {
-            type: 'row',
-            content: [
-                {
-                    type: 'react-component',
-                    component: 'Hello',
-                    props: {
-                        compiler: "A",
-                        framework: "Framework"
-                    }
-                },
-                {
-                    type: 'column',
-                    content: [
-                        {
-                            type: 'react-component',
-                            component: 'Hello',
-                            props: {
-                                compiler: "B",
-                                framework: "Framework"
-                            }
-                        },
-                        {
-                            type: 'react-component',
-                            component: 'Hello',
-                            props: {
-                                compiler: "C",
-                                framework: "Framework"
-                            }
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-});
-
-layout.registerComponent("Hello", Hello);
-layout.init();
+    initLayout(document.getElementById("layout"));
+}

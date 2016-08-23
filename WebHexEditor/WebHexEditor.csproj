@@ -45,6 +45,7 @@
     <TypeScriptCompile Include="src\Layout\Editor.tsx" />
     <TypeScriptCompile Include="src\Layout\Hello.tsx" />
     <TypeScriptCompile Include="src\Layout\LoadModal.tsx" />
+    <TypeScriptCompile Include="src\Layout\MainMenu.tsx" />
     <TypeScriptCompile Include="src\Tests.ts" />
     <TypeScriptCompile Include="typings\index.d.ts" />
   </ItemGroup>
