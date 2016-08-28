@@ -67,9 +67,19 @@ export default class LoadModal extends React.Component<LoadModalProps, LoadModal
         }
     }
 
+    onConfirm() {
+        this.props.onConfirm(this.state.selectedFile);
+        this.setState({ selectedFile: null });
+    }
+
+    onCancel() {
+        this.props.onCancel();
+        this.setState({ selectedFile: null });
+    }
+
     render() {
         return (
-            <Modal id="loadModal" show={this.props.showModal} onHide={this.props.onCancel}>
+            <Modal id="loadModal" show={this.props.showModal} onHide={() => this.onCancel()}>
                 <Modal.Header closeButton>
                     <Modal.Title>Open new file</Modal.Title>
                 </Modal.Header>
@@ -79,8 +89,8 @@ export default class LoadModal extends React.Component<LoadModalProps, LoadModal
                     <FileInformation file={this.state.selectedFile} />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button disabled={!this.state.selectedFile} onClick={this.props.onConfirm}>Load</Button>
-                    <Button onClick={this.props.onCancel}>Cancel</Button>
+                    <Button disabled={!this.state.selectedFile} onClick={() => this.onConfirm()}>Load</Button>
+                    <Button onClick={() => this.onCancel()}>Cancel</Button>
                 </Modal.Footer>
             </Modal>
             )

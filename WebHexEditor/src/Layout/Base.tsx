@@ -1,6 +1,7 @@
 ﻿import GoldenLayout = require("golden-layout");
 
 import { Hello } from "./Hello";
+import { Editor } from "./Editor";
 
 /***
  * This interface should be inherited by all props interfaces of main layout components
@@ -56,6 +57,7 @@ export function initLayout(container: HTMLElement) {
     layout = new GoldenLayout(layoutConfig, container);
 
     layout.registerComponent("Hello", Hello);
+    layout.registerComponent("Editor", Editor);
     layout.init();
 
     window.addEventListener("resize", (ev: UIEvent) => {

@@ -2,6 +2,7 @@
 
 import { UINavbar, UINavbarItem } from "./UINavbar";
 import LoadModal from "./LoadModal";
+import { layout } from "./Base";
 
 interface UIViewState {
     loadModalOpened?: boolean;
@@ -33,7 +34,11 @@ export default class UIView extends React.Component<{}, UIViewState>
 
     loadFile(file: File) {
         this.loadModalClose();
-        /* ... loading file code */
+        layout.root.contentItems[0].addChild({
+            type: 'react-component',
+            component: 'Editor',
+            props: { file: file }
+        });
     }
 
     render() {

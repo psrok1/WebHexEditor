@@ -1,23 +1,32 @@
 ﻿import * as React from "react";
 import { GLComponentProps } from "./Base.tsx"
 
-export interface EditorProps extends GLComponentProps { }
-export interface EditorState { }
+interface EditorProps extends GLComponentProps {
+    file: File;
+}
+
+enum InteractivityState {
+    Initializing,
+    HardWaiting,
+    SoftWaiting,
+    Ready
+}
+
+interface EditorState {
+    interactivity?: InteractivityState;
+}
 
 export class Editor extends React.Component<EditorProps, EditorState> {
-    componentWillMount() {
-        this.props.glContainer.on("resize", this.onresize);
-    }
-
-    componentWillUnmount() {
-        this.props.glContainer.off("resize", this.onresize);
-    }
-
-    private onresize() {
-        
+    constructor() {
+        super()
+        this.state = {
+            interactivity: InteractivityState.Initializing
+        };
     }
 
     render() {
-        return (<div class="editor"></div>)
+        return (<div>
+            <h1>{this.props.file.name}</h1>
+        </div>)
     }
 }
