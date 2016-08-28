@@ -238,7 +238,7 @@ _Pvt_Extensions
 node_modules/
 
 # Exception for external definitions
-!node_modules/*.d.ts
+!WebHexEditor/node_modules/*.d.ts
 
 # Ignore Typings
 typings/
