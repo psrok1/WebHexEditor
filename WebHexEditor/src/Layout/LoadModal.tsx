@@ -1,11 +1,6 @@
 ﻿import * as React from "react";
 import { Modal, Button } from "react-bootstrap";
 
-interface LoadModalState {
-    showModal?: boolean,
-    selectedFile?: File
-}
-
 class FileInformation extends React.Component<{ file: File }, {}>
 {
     render() {
@@ -24,23 +19,21 @@ class FileInformation extends React.Component<{ file: File }, {}>
     }
 }
 
-export default class LoadModal extends React.Component<{}, LoadModalState>
+interface LoadModalProps {
+    showModal: boolean;
+    onCancel: () => any;
+    onConfirm: (file: File) => any;
+}
+
+interface LoadModalState {
+    selectedFile?: File
+}
+
+export default class LoadModal extends React.Component<LoadModalProps, LoadModalState>
 {
     constructor() {
         super();
-        this.state = { showModal: true, selectedFile: null }
-    }
-
-    confirm() {
-
-    }
-
-    cancel() {
-        this.setState({ showModal: false });
-    }
-
-    open() {
-        this.setState({ showModal: true });
+        this.state = { selectedFile: null }
     }
 
     private handleFileSelect(evt: DragEvent) {
@@ -63,18 +56,20 @@ export default class LoadModal extends React.Component<{}, LoadModalState>
         evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
     }
 
-    componentDidMount() {
-        let dropZone = document.getElementById("drop-zone");
-        dropZone.addEventListener('dragover', (evt: DragEvent) => this.handleDragOver(evt), false);
-        dropZone.addEventListener('drop', (evt: DragEvent) => this.handleFileSelect(evt), false);
+    componentDidUpdate() {
+        if (this.props.showModal) {
+            let dropZone = document.getElementById("drop-zone");
+            dropZone.addEventListener('dragover', (evt: DragEvent) => this.handleDragOver(evt), false);
+            dropZone.addEventListener('drop', (evt: DragEvent) => this.handleFileSelect(evt), false);
 
-        let fileSelector = document.getElementById('file-selector');
-        fileSelector.addEventListener('change', (evt: DragEvent) => this.handleFileSelect(evt), false);
+            let fileSelector = document.getElementById('file-selector');
+            fileSelector.addEventListener('change', (evt: DragEvent) => this.handleFileSelect(evt), false);
+        }
     }
 
     render() {
         return (
-            <Modal id="loadModal" show={this.state.showModal} onHide={() => this.confirm()}>
+            <Modal id="loadModal" show={this.props.showModal} onHide={this.props.onCancel}>
                 <Modal.Header closeButton>
                     <Modal.Title>Open new file</Modal.Title>
                 </Modal.Header>
@@ -84,8 +79,8 @@ export default class LoadModal extends React.Component<{}, LoadModalState>
                     <FileInformation file={this.state.selectedFile} />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button disabled={!this.state.selectedFile} onClick={() => this.confirm()}>Load</Button>
-                    <Button onClick={() => this.cancel()}>Cancel</Button>
+                    <Button disabled={!this.state.selectedFile} onClick={this.props.onConfirm}>Load</Button>
+                    <Button onClick={this.props.onCancel}>Cancel</Button>
                 </Modal.Footer>
             </Modal>
             )

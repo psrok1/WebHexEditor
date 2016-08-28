@@ -13,12 +13,4 @@ export default class FileContext {
         this.workerInstance = new WorkerInstance(file, onInitialized);
         this.dataCache = new DataCache();
     }
-
-    public countRows(width: number) {
-
-    }
-
-    public readRow(rowNo: number, width: number) {
-
-    }
 }

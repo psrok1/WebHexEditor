@@ -17,7 +17,8 @@
     "./src/Layout/Hello.tsx",
     "./src/Layout/LoadModal.tsx",
     "./src/Layout/Editor.tsx",
-    "./src/Layout/MainMenu.tsx",
+    "./src/Layout/UINavbar.tsx",
+    "./src/Layout/UIView.tsx",
     "./src/index.tsx"
   ]
 }
