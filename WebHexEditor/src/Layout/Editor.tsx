@@ -1,5 +1,6 @@
 ﻿import * as React from "react";
 import { GLComponentProps } from "./Base.tsx"
+import { AutoSizer, VirtualScroll } from "react-virtualized"
 
 interface EditorProps extends GLComponentProps {
     file: File;
@@ -25,8 +26,19 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     }
 
     render() {
-        return (<div>
-            <h1>{this.props.file.name}</h1>
-        </div>)
+        return (
+            <AutoSizer>
+                {(dimensions: { width: number, height: number }) =>
+                    (<VirtualScroll
+                        width = {dimensions.width}
+                        height = {dimensions.height}
+                        overscanRowCount = {30}
+                        noRowsRenderer = {() => (<div>No rows</div>) }
+                        rowRenderer = {(params: { index: number }) => (<div>{params.index}</div>) }
+                        rowHeight = {30}
+                        rowCount = {4000}
+                        />)}
+            </AutoSizer>
+        )
     }
 }
