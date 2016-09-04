@@ -44,9 +44,9 @@
     <TypeScriptCompile Include="src\index.tsx" />
     <TypeScriptCompile Include="src\Converters.ts" />
     <TypeScriptCompile Include="src\Datastore\DatastoreWorkerInstance.ts" />
-    <TypeScriptCompile Include="src\Editor\_Editor.ts" />
     <TypeScriptCompile Include="src\Layout\Base.tsx" />
-    <TypeScriptCompile Include="src\Layout\Editor.tsx" />
+    <TypeScriptCompile Include="src\Layout\Editor\Editor.tsx" />
+    <TypeScriptCompile Include="src\Layout\Editor\EditorRow.tsx" />
     <TypeScriptCompile Include="src\Layout\Hello.tsx" />
     <TypeScriptCompile Include="src\Layout\LoadModal.tsx" />
     <TypeScriptCompile Include="src\Layout\UINavbar.tsx" />
