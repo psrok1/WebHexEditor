@@ -16,9 +16,11 @@
     "./src/Layout/Base.tsx",
     "./src/Layout/Hello.tsx",
     "./src/Layout/LoadModal.tsx",
-    "./src/Layout/Editor.tsx",
+    "./src/Layout/Editor/Editor.tsx",
+    "./src/Layout/Editor/EditorRow.tsx",
     "./src/Layout/UINavbar.tsx",
     "./src/Layout/UIView.tsx",
+    "./src/Converters.ts",
     "./src/index.tsx"
   ]
 }

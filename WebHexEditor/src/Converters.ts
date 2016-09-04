@@ -1,4 +1,4 @@
-﻿module Converters {
+﻿export namespace Converters {
     var asciiTable: {[code: number]: string} = {
         32:  " ",  33:  "!", 34:  "\"", 35: "#",  36: "$",
         37:  "%",  38:  "&", 39:  "'",  40: "(",  41: ")",
@@ -25,7 +25,7 @@
         return asciiTable[val] || ".";
     }
 
-    export function hexWithPad(num, l): string {
+    export function hexWithPad(num: number, l: number): string {
         var s = Array(l + 1).join("0") + num.toString(16);
         return s.substr(s.length - l).toUpperCase();
     }
