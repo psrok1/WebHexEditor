@@ -1,7 +1,6 @@
 ﻿import DatastoreWorker = require("./DatastoreWorkerRequest.ts");
 import WorkerInstance from "./DatastoreWorkerInstance.ts"
 import DataCache from "./DataCache.ts"
-import { Converters } from "../Converters.ts"
 
 interface FileSection {
     offset: number;
@@ -67,11 +66,15 @@ export default class FileContext {
         // Trim to file size
         size = Math.min(size, this.fileSize - offs);
 
+        console.log(offs + " " + size);
+        console.time("REQUESTING FOR PAGE");
         this.workerInstance.sendRequest(
             /* request */
             new DatastoreWorker.ReadRequest(offs, size),
             /* response handler */
             (e: MessageEvent) => {
+                console.log("READ DONE!");
+                console.timeEnd("REQUESTING FOR PAGE");
                 var response: DatastoreWorker.ReadResponse = e.data;
 
                 this.dataCache.insertPage(offs, response.data);
@@ -145,6 +148,7 @@ export default class FileContext {
         }
 
         // Build layout array
+        console.log(currentOffset + " " + size);
         while (layout.length < rowsLimit && currentOffset < size) {
             if (succSectionIndex !== null && currentOffset >= this.sections[succSectionIndex].offset) {
                 // Section?
@@ -216,6 +220,7 @@ export default class FileContext {
             else {
                 var val = this.dataCache.getByte(offset + i, this.onDataRequest.bind(this));
                 if (val == null) {
+                    console.log("CACHE MISSED!");
                     this.waitingForData = true;
                     result.data.push(FileByteSpecial.PENDING);
                     result.complete = false;
@@ -248,13 +253,4 @@ export default class FileContext {
             padding: rowLayout.offset % width
         };
     }
-}
-
-export function byteToString(b: FileByte): string {
-    if (b == FileByteSpecial.PENDING)
-        return "??";
-    else if (b == FileByteSpecial.EOF)
-        return "  ";
-    else
-        return Converters.hexWithPad(b, 2);
 }

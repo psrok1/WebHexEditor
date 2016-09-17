@@ -5,7 +5,7 @@
   "dependencies": {
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
-    "react-virtualized": "^7.19.4",
+    "react-virtualized": "^7.24.3",
     "react-bootstrap": "^0.30.3",
     "jquery": "^3.1.0",
     "golden-layout": "~1.5.1"

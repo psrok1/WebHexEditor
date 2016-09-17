@@ -27,7 +27,7 @@ export default class WorkerInstance {
     }
 
     constructor(source: File, onInitialized: () => any) {
-        this.worker = new Worker("datastore.js");
+        this.worker = new Worker("dist/datastore.js");
         this.worker.onmessage = this.handleResponse.bind(this);
         this.sendRequest(
             /* request */

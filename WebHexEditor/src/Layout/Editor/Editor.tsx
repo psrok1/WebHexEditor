@@ -42,8 +42,10 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
     private renderRow(params: { index: number }) {
         var row: FileRow = this.fileContext.readRow(params.index, 16);
-        if (row.fileData && !row.fileData.complete)
-            this.setState({interactivity: InteractivityState.SoftWaiting });
+        if (row.fileData && !row.fileData.complete &&
+            this.state.interactivity !== InteractivityState.SoftWaiting) {
+            this.setState({ interactivity: InteractivityState.SoftWaiting });
+        }
 
         return (<EditorRow row={row} /> )
     }
@@ -57,7 +59,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
                             style = {{ backgroundColor: "white", color: "black" }}
                             width = {dimensions.width}
                             height = {dimensions.height}
-                            overscanRowCount = {30}
+                            overscanRowCount = {10}
                             noRowsRenderer = {() => (<div>No rows</div>) }
                             rowRenderer = { this.renderRow.bind(this) }
                             rowHeight = { 30 }
