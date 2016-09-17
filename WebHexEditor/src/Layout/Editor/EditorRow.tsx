@@ -1,6 +1,12 @@
 ﻿import * as React from "react";
+import { FileRow } from "../../Datastore/FileContext";
 
-export class EditorRow extends React.Component<{}, {}>
+
+export interface EditorRowProps {
+    row: FileRow;
+}
+
+export default class EditorRow extends React.Component<EditorRowProps, {}>
 {
     render() {
         return (

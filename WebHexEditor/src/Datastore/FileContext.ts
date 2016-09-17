@@ -14,7 +14,11 @@ interface FileLayoutElement {
     section?: FileSection;
 }
 
-type FileLayout = FileLayoutElement[];
+interface FileLayout {
+    rowStart: number;
+    width: number;
+    layout: FileLayoutElement[];
+}
 
 export enum FileByteSpecial {
     PENDING = 256,
@@ -29,10 +33,22 @@ export interface FileData {
     data: Array<FileByte>;
 }
 
+export interface FileRow {
+    padding?: number;
+    fileData?: FileData;
+    sectionLabel?: string;
+}
+
 export default class FileContext {
+    // Asynchronous data interface
     private workerInstance: WorkerInstance;
+    // Cache for synchronous reading from contiguous rows
     private dataCache: DataCache;
+    // Prevent executing additional requests until current will be finished
     private waitingForData: boolean = false;
+    // Layout evaluated for current view
+    // Should be invalidated when list of sections is updated
+    private currentLayout: FileLayout = null;
 
     private sections: FileSection[] = [];
 
@@ -82,9 +98,9 @@ export default class FileContext {
      * @param rowsLimit Count of visible rows
      * @param width Single row width
      */
-    public getFileLayout(rowNo: number, rowsLimit: number, width: number = 16): FileLayout {
+    private getFileLayout(rowNo: number, rowsLimit: number, width: number = 16): FileLayout {
         var size: number = this.fileSize + 1; // Place for append
-        var layout: FileLayout = [];
+        var layout: FileLayoutElement[] = [];
         var predSectionIndex: number = null;
         var predSectionRow: number = null;
         var succSectionIndex: number = null;
@@ -169,13 +185,18 @@ export default class FileContext {
         if (currentOffset > size) {
             layout[layout.length - 1].dataLength -= (currentOffset - size);
         }
-        return layout;
+
+        return {
+            layout: layout,
+            rowStart: rowNo,
+            width: width
+        }
     }
 
     /**
      * Reads data from specified offset
      */
-    public readData(offset: number, length: number): FileData {
+    private readData(offset: number, length: number): FileData {
         var result: FileData = {
             offset: offset,
             complete: true,
@@ -204,6 +225,28 @@ export default class FileContext {
         }
 
         return result;
+    }
+
+    public readRow(rowNo: number, width: number = 16): FileRow {
+        if (this.currentLayout == null ||
+            this.currentLayout.width != width ||
+            rowNo < this.currentLayout.rowStart ||
+            rowNo >= (this.currentLayout.rowStart + this.currentLayout.layout.length))
+        {
+            this.currentLayout = this.getFileLayout(rowNo, 64, width);
+        }
+
+        var rowLayout = this.currentLayout.layout[rowNo - this.currentLayout.rowStart];
+
+        if (rowLayout.section)
+            return { sectionLabel: rowLayout.section.label }
+
+        var data = this.readData(rowLayout.offset, rowLayout.dataLength);
+
+        return {
+            fileData: data,
+            padding: rowLayout.offset % width
+        };
     }
 }
 
