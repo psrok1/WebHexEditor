@@ -36,6 +36,7 @@ export interface FileRow {
     padding?: number;
     fileData?: FileData;
     sectionLabel?: string;
+    sectionOffset?: number;
 }
 
 export default class FileContext {
@@ -49,7 +50,16 @@ export default class FileContext {
     // Should be invalidated when list of sections is updated
     private currentLayout: FileLayout = null;
 
-    private sections: FileSection[] = [];
+    // @debug: predefined section
+    private sections: FileSection[] = [
+        {
+            offset: 44,
+            label: "SECTION .TEXT"
+        },
+        {
+            offset: 177,
+            label: "SECTION .DATA"
+        }];
 
     private fileSize: number;
     private onUpdateAction: () => any;
@@ -242,7 +252,10 @@ export default class FileContext {
         var rowLayout = this.currentLayout.layout[rowNo - this.currentLayout.rowStart];
 
         if (rowLayout.section)
-            return { sectionLabel: rowLayout.section.label }
+            return {
+                sectionLabel: rowLayout.section.label,
+                sectionOffset: rowLayout.section.offset
+            }
 
         var data = this.readData(rowLayout.offset, rowLayout.dataLength);
 

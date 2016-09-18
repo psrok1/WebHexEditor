@@ -19,6 +19,8 @@ enum InteractivityState {
 
 interface EditorState {
     interactivity?: InteractivityState;
+    selectionStart?: number;
+    selectionEnd?: number;
 }
 
 export class Editor extends React.Component<EditorProps, EditorState> {
@@ -27,8 +29,11 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     constructor(props: EditorProps) {
         super();
         this.state = {
-            interactivity: InteractivityState.Initializing
+            interactivity: InteractivityState.Initializing,
+            selectionStart: 0,
+            selectionEnd: 0
         };
+
         this.fileContext = new FileContext(
             props.file,
             // onInitialized

@@ -3,6 +3,42 @@
     font-family: monospace;
 }
 
+/* EditorRow.tsx */
+
+.editor-row { }
+.editor-section-row { }
+
+.editor-cell {
+    display: inline;
+}
+
+.editor-sec-offs {
+    color: darkgray;
+    padding-right: 32px;
+}
+
+.editor-sec-label {
+    color: gray;
+}
+
+.editor-offs-cell {
+    color: blue;
+    padding-right: 32px;
+}
+
+.editor-byte-cell {
+    padding: 4px 8px 4px 8px;
+}
+
+.editor-bytes {
+    display: inline;
+    padding-right: 32px;
+}
+
+.editor-ascii {
+    display: inline;
+}
+
 /* EditorScrollbox.tsx */
 .editor-scrollbox {
     position: relative;
