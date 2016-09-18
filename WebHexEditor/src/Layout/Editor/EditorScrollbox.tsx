@@ -3,6 +3,7 @@
 interface EditorScrollbarProps {
     scrollArea: number;
     scrollMax: number;
+    scrollTo: number;
     onScroll?: (index: number) => any;
 }
 
@@ -14,6 +15,12 @@ class EditorScrollbar extends React.Component<EditorScrollbarProps, EditorScroll
     constructor() {
         super();
         this.state = { scrollPos: 0 };
+    }
+
+    componentWillReceiveProps(nextProps: EditorScrollbarProps) {
+        this.setState({
+            scrollPos: nextProps.scrollTo
+        });
     }
 
     private evaluatePos() {
@@ -81,8 +88,17 @@ export default class EditorScrollbox extends React.Component<EditorScrollboxProp
     }
 
     private setCurrentRow(index: number) {
+        console.log(index);
+        index = Math.max(0, index);
+        index = Math.min(this.props.rowCount - 1, index);
+
         if (this.state.currentRow != index)
             this.setState({ currentRow: index });
+    }
+
+    private onWheel(ev: WheelEvent) {
+        this.setCurrentRow(Math.floor(this.state.currentRow + ev.deltaY));
+        ev.stopPropagation();
     }
 
     render() {
@@ -96,14 +112,17 @@ export default class EditorScrollbox extends React.Component<EditorScrollboxProp
 
         return (
             <div className="editor-scrollbox"
+                onWheel={this.onWheel.bind(this)}
+
                 style={{
                     width: this.props.width,
                     height: this.props.height
                 }}>
                 {rows}
                 <EditorScrollbar
-                    scrollArea={this.props.height}
-                    scrollMax={this.props.rowCount}
+                    scrollArea={ this.props.height }
+                    scrollMax={ this.props.rowCount }
+                    scrollTo={ this.state.currentRow }
                     onScroll={ this.setCurrentRow.bind(this) }/>
             </div>);
     }

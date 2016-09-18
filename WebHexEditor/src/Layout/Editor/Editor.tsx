@@ -46,6 +46,10 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         if (row.fileData && !row.fileData.complete &&
             this.state.interactivity !== InteractivityState.SoftWaiting)
         {
+            /**
+             * React forbids state setting during render, so we'll just do it
+             * immediately after.
+             */
             setTimeout(() => this.setState({ interactivity: InteractivityState.SoftWaiting }), 0);
         }
 
@@ -56,7 +60,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         return (
             <AutoSizer>
                 {(dimensions: { width: number, height: number }) =>
-                    (<div style={{position: "relative"}}>
+                    (<div className="editor" style={{position: "relative"}}>
                         <EditorScrollbox
                             width={dimensions.width}
                             height={dimensions.height}

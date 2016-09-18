@@ -22,6 +22,7 @@ export default class EditorRow extends React.Component<EditorRowProps, {}>
         if (this.props.row.sectionLabel)
             return "----- " + this.props.row.sectionLabel;
         else {
+            str = Converters.hexWithPad(this.props.row.fileData.offset, 8)+"    ";
             for (var byte of this.props.row.fileData.data)
                 str += byteToString(byte) + " ";
             return str;

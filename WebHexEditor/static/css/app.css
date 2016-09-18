@@ -1,4 +1,9 @@
-﻿/* EditorScrollbox.tsx */
+﻿/* Editor.tsx */
+.editor {
+    font-family: monospace;
+}
+
+/* EditorScrollbox.tsx */
 .editor-scrollbox {
     position: relative;
     background-color: white;
