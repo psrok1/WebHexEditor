@@ -66,7 +66,6 @@ export default class FileContext {
         // Trim to file size
         size = Math.min(size, this.fileSize - offs);
 
-        console.log(offs + " " + size);
         console.time("REQUESTING FOR PAGE");
         this.workerInstance.sendRequest(
             /* request */
@@ -148,7 +147,6 @@ export default class FileContext {
         }
 
         // Build layout array
-        console.log(currentOffset + " " + size);
         while (layout.length < rowsLimit && currentOffset < size) {
             if (succSectionIndex !== null && currentOffset >= this.sections[succSectionIndex].offset) {
                 // Section?
@@ -220,7 +218,7 @@ export default class FileContext {
             else {
                 var val = this.dataCache.getByte(offset + i, this.onDataRequest.bind(this));
                 if (val == null) {
-                    console.log("CACHE MISSED!");
+                    console.log("CACHE MISSED! "+(offset+i));
                     this.waitingForData = true;
                     result.data.push(FileByteSpecial.PENDING);
                     result.complete = false;

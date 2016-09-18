@@ -2,6 +2,7 @@
 import { AutoSizer, VirtualScroll } from "react-virtualized"
 import FileContext, { FileRow } from "../../Datastore/FileContext"
 import EditorRow from "./EditorRow"
+import EditorScrollbox from "./EditorScrollbox"
 
 import { GLComponentProps } from "../Base"
 
@@ -40,14 +41,15 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             });
     }
 
-    private renderRow(params: { index: number }) {
-        var row: FileRow = this.fileContext.readRow(params.index, 16);
+    private renderRow(index: number): JSX.Element {
+        var row: FileRow = this.fileContext.readRow(index, 16);
         if (row.fileData && !row.fileData.complete &&
-            this.state.interactivity !== InteractivityState.SoftWaiting) {
-            this.setState({ interactivity: InteractivityState.SoftWaiting });
+            this.state.interactivity !== InteractivityState.SoftWaiting)
+        {
+            setTimeout(() => this.setState({ interactivity: InteractivityState.SoftWaiting }), 0);
         }
 
-        return (<EditorRow row={row} /> )
+        return (<EditorRow key={index} row={row} />)
     }
 
     render() {
@@ -55,15 +57,12 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             <AutoSizer>
                 {(dimensions: { width: number, height: number }) =>
                     (<div style={{position: "relative"}}>
-                        <VirtualScroll
-                            style = {{ backgroundColor: "white", color: "black" }}
-                            width = {dimensions.width}
-                            height = {dimensions.height}
-                            overscanRowCount = {10}
-                            noRowsRenderer = {() => (<div>No rows</div>) }
-                            rowRenderer = { this.renderRow.bind(this) }
-                            rowHeight = { 30 }
-                            rowCount = { this.fileContext.getNumberOfRows() }
+                        <EditorScrollbox
+                            width={dimensions.width}
+                            height={dimensions.height}
+                            rowCount={this.fileContext.getNumberOfRows() }
+                            rowRenderer={ this.renderRow.bind(this) } 
+                            rowHeight={16}
                             />
                         <div style={{
                             position: "absolute",

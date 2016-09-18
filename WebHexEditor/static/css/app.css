@@ -1,47 +1,25 @@
-﻿div.editor {
-    font-family: Courier New, Courier, monospace;
-    font-size: 12pt;
+﻿/* EditorScrollbox.tsx */
+.editor-scrollbox {
+    position: relative;
+    background-color: white;
+    overflow: hidden;
 }
 
-div.editor > div {
-    float:left;
+.editor-scrollbar {
+    position: absolute;
+    width: 8px;
+    right: 0;
+    top: 0;
+    background-color: silver;
+    opacity: 0.5;
 }
 
-.ed-offs-column {
-    color: #888;
-    padding: 0 4pt 0 4pt;
-}
-
-.ed-offs-row {
-    color: #AAA;
-}
-
-.ed-row {
-    padding: 4pt 0 4pt 0;
-}
-
-.ed-row div {
-    display: inline;
-}
-
-.ed-byte-data .ed-row div {
-    padding: 4pt 4pt 4pt 4pt;
-}
-
-.ed-offs-column div {
-    padding: 4pt 0 4pt 0;
-}
-
-.debug-marked {
-    background-color: lightsalmon;
-}
-
-body {
-    font-family: 'Segoe UI', sans-serif;
-}
-
-span {
-    font-style: italic;
+.editor-scroll {
+    position: absolute;
+    width: 8px;
+    background-color: gray;
+    border-radius: 4px;
+    font-size: 0px;
 }
 
 /* LoadModal.tsx */
@@ -60,4 +38,5 @@ span {
 
 body {
     background-color: black;
+    font-family: 'Segoe UI', sans-serif;
 }
