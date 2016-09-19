@@ -6,15 +6,6 @@ export interface EditorRowProps {
     row: FileRow;
 }
 
-function byteToString(b: FileByte): string {
-    if (b == FileByteSpecial.PENDING)
-        return "??";
-    else if (b == FileByteSpecial.EOF)
-        return "  ";
-    else
-        return Converters.hexWithPad(b, 2);
-}
-
 function formatSectionLabel(label: string) {
     const SECTION_SPACE = 64;
 

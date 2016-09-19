@@ -2,6 +2,13 @@
 import WorkerInstance from "./DatastoreWorkerInstance.ts"
 import DataCache from "./DataCache.ts"
 
+/**
+ TODO:
+    Section lookup will be done very often, but is implemented as
+    simple iterating over array. If it turns out that we need sometimes
+    lots of sections, something based on binary search should be introduced.
+**/
+
 interface FileSection {
     offset: number;
     label: string;
@@ -59,6 +66,14 @@ export default class FileContext {
         {
             offset: 177,
             label: "SECTION .DATA"
+        },
+        {
+            offset: 180,
+            label: "Special section"
+        },
+        {
+            offset: 320,
+            label: "SECTION .RSRC"
         }];
 
     private fileSize: number;
@@ -245,9 +260,23 @@ export default class FileContext {
         return result;
     }
 
-    public getByteCoordinates(position: number, width: number = 16): { row: number, offset: number } {
-        /** @todo: Need to be implemented **/
-        return { row: 0, offset: 0 }
+    public getByteCoordinates(position: number, width: number = 16): { row: number, column: number } {
+        var section: FileSection;
+        var rowShift: number;
+
+        // Do section lookup and evaluate row-shift
+        for (var i = 0; i < this.sections.length; i++, rowShift++)
+        {
+            section = this.sections[i];
+            // If section breaks the row: we need to shift next rows
+            if (section.offset % width)
+                ++rowShift;
+        }
+
+        return {
+            row: Math.floor(position / width) + rowShift,
+            column: position % width
+        }
     }
 
     public readRow(rowNo: number, width: number = 16): FileRow {

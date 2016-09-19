@@ -18,6 +18,7 @@
     "./src/Layout/LoadModal.tsx",
     "./src/Layout/Editor/EditorScrollbox.tsx",
     "./src/Layout/Editor/EditorRow.tsx",
+    "./src/Layout/Editor/EditorCell.tsx",
     "./src/Layout/Editor/Editor.tsx",
     "./src/Layout/UINavbar.tsx",
     "./src/Layout/UIView.tsx",
