@@ -125,16 +125,21 @@ export default class FileContext {
         // Find section-predecessor
         for (var i = 0; i < this.sections.length; i++) {
             var section = this.sections[i];
+            // If section breaks the row: we need to shift next rows
             if (section.offset % width)
                 ++rowShift;
-            succSectionRow = getRowNumber(section.offset);
-            succSectionIndex = i;
 
-            if (succSectionRow >= rowNo)
+            var sectionRow = getRowNumber(section.offset);
+
+            if (sectionRow >= rowNo)
+            {
+                succSectionRow = sectionRow;
+                succSectionIndex = i;
                 break;
+            }
             else {
+                predSectionRow = sectionRow;
                 predSectionIndex = i;
-                predSectionRow = succSectionRow;
             }
             ++rowShift;
         }
@@ -238,6 +243,11 @@ export default class FileContext {
         }
 
         return result;
+    }
+
+    public getByteCoordinates(position: number, width: number = 16): { row: number, offset: number } {
+        /** @todo: Need to be implemented **/
+        return { row: 0, offset: 0 }
     }
 
     public readRow(rowNo: number, width: number = 16): FileRow {
