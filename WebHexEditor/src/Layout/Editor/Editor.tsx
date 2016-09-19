@@ -32,8 +32,8 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         super();
         this.state = {
             interactivity: InteractivityState.Initializing,
-            selectionStart: 0,
-            selectionEnd: 0
+            selectionStart: null,
+            selectionEnd: null
         };
 
         this.fileContext = new FileContext(
@@ -67,6 +67,8 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
             window.addEventListener("mouseup", stopSelection);
             ev.preventDefault();
+            // Click on the outside of cell should cancel selection
+            ev.stopPropagation();
         }
     }
 
@@ -79,10 +81,21 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         }
     }
 
+    private onEditorMouseDown(ev: MouseEvent) {
+        this.setState({
+            selectionStart: null,
+            selectionEnd: null
+        });
+        ev.preventDefault();
+    }
+
     /*** RENDERING ***/
     private getSelectionRangeForRow(row: FileRow): { start: number, end: number } {
         // Selection isn't supported for section rows
-        if (row.sectionLabel)
+        // When nothing is selected - we also should return null
+        if (row.sectionLabel ||
+            this.state.selectionStart === null ||
+            this.state.selectionEnd === null) 
             return null;
 
         var coStart = this.fileContext.getByteCoordinates(this.state.selectionStart, 16);
@@ -143,7 +156,10 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         return (
             <AutoSizer>
                 {(dimensions: { width: number, height: number }) =>
-                    (<div className="editor" style={{position: "relative"}}>
+                    (<div
+                        className="editor"
+                        style={{ position: "relative" }}
+                        onMouseDown={ this.onEditorMouseDown.bind(this) } >
                         <EditorScrollbox
                             width={dimensions.width}
                             height={dimensions.height}
