@@ -4,8 +4,11 @@ import FileContext, { FileRow } from "../../Datastore/FileContext"
 import EditorRow from "./EditorRow"
 import EditorScrollbox from "./EditorScrollbox"
 import { MouseCellEvent } from "./EditorCell"
+import { Events } from "../../Events"
 
 import { GLComponentProps } from "../Base"
+
+const EditorRowHeight = 22;
 
 interface EditorProps extends GLComponentProps {
     file: File;
@@ -20,6 +23,8 @@ enum InteractivityState {
 
 interface EditorState {
     interactivity?: InteractivityState;
+    scrollPos?: number;
+    visibleRows?: number;
     selectionStart?: number;
     selectionEnd?: number;
     selectionMouseDown?: boolean;
@@ -33,7 +38,9 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         this.state = {
             interactivity: InteractivityState.Initializing,
             selectionStart: null,
-            selectionEnd: null
+            selectionEnd: null,
+            scrollPos: 0,
+            visibleRows: null
         };
 
         this.fileContext = new FileContext(
@@ -48,54 +55,19 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             });
     }
 
-    /*** MOUSE EVENTS ***/
-    private onCellMouseDown(ev: MouseCellEvent) {
-        var that = this;
-        if (ev.button == 0) {
-            // Left button
-            console.log("STARTED SELECTION "+ev.cell.cellOffset);
-            this.setState({
-                selectionStart: ev.cell.cellOffset,
-                selectionEnd: ev.cell.cellOffset,
-                selectionMouseDown: true
-            });
-
-            var stopSelection = (ev: MouseEvent) => {
-                that.setState({ selectionMouseDown: false });
-                window.removeEventListener("mouseup", stopSelection);
-            }
-
-            window.addEventListener("mouseup", stopSelection);
-            ev.preventDefault();
-            // Click on the outside of cell should cancel selection
-            ev.stopPropagation();
-        }
+    /*** RESIZE ***/
+    private onResize(dimensions: { height: number, width: number }) {
+        this.setState({ "visibleRows": Math.ceil(dimensions.height / EditorRowHeight) });
     }
 
-    private onCellMouseOver(ev: MouseCellEvent) {
-        if (this.state.selectionMouseDown) {
-            this.setState({
-                selectionEnd: ev.cell.cellOffset
-            });
-            ev.preventDefault();
-        }
-    }
+    /*** SELECTION ***/
 
-    private onEditorMouseDown(ev: MouseEvent) {
-        this.setState({
-            selectionStart: null,
-            selectionEnd: null
-        });
-        ev.preventDefault();
-    }
-
-    /*** RENDERING ***/
     private getSelectionRangeForRow(row: FileRow): { start: number, end: number } {
         // Selection isn't supported for section rows
         // When nothing is selected - we also should return null
         if (row.sectionLabel ||
             this.state.selectionStart === null ||
-            this.state.selectionEnd === null) 
+            this.state.selectionEnd === null)
             return null;
 
         var coStart = this.fileContext.getByteCoordinates(this.state.selectionStart, 16);
@@ -129,6 +101,153 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         return range;
     }
 
+    private cancelSelection() {
+        this.setState({
+            selectionStart: null,
+            selectionEnd: null
+        });
+    }
+
+    private onScroll(index: number) {
+        this.setState({ scrollPos: index });
+    }
+
+    private moveSelection(moveOffset: number, expand: boolean = false) {
+        // Nothing to move?
+        if (this.state.selectionStart === null)
+            return;
+
+        var s: number;
+        var focusScroll = (s: number) => {
+            var coords = this.fileContext.getByteCoordinates(s);
+
+            console.log(coords.row + " => (" + this.state.scrollPos + "," +
+                (this.state.scrollPos + this.state.visibleRows) + ")");
+
+            if (coords.row < this.state.scrollPos)
+                return coords.row;
+            if (coords.row >= (this.state.scrollPos + this.state.visibleRows))
+                return coords.row - this.state.visibleRows + 1;
+
+            return this.state.scrollPos;
+        }
+
+        if (expand) {
+            // Expanding selection
+            s = Math.min(this.fileContext.getFileSize(),
+                Math.max(0, this.state.selectionEnd + moveOffset));
+            this.setState({
+                selectionEnd: s,
+                scrollPos: focusScroll(s)
+            });
+        } else {
+            // Selecting next row
+            s = (moveOffset < 0 ? Math.min : Math.max)(this.state.selectionStart, this.state.selectionEnd);
+            s = Math.min(this.fileContext.getFileSize(),
+                Math.max(0, s + moveOffset));
+            this.setState({
+                selectionStart: s,
+                selectionEnd: s,
+                scrollPos: focusScroll(s)
+            });
+        }
+    }
+
+    /*** KEYBOARD EVENTS ***/
+    private onKeyDown(ev: KeyboardEvent) {
+        switch (ev.key) {
+            case "ArrowDown":
+                this.moveSelection(16, ev.shiftKey);
+                break;
+            case "ArrowUp":
+                this.moveSelection(-16, ev.shiftKey);
+                break;
+            case "ArrowLeft":
+                this.moveSelection(-1, ev.shiftKey);
+                break;
+            case "ArrowRight":
+                this.moveSelection(1, ev.shiftKey);
+                break;
+            case "Escape":
+                this.cancelSelection();
+                break;
+            case "Tab":
+                break;
+            default:
+                return;
+        }
+
+        ev.preventDefault();
+    }
+
+    /*** FOCUS EVENTS ***/
+
+    private onFocusStolenCallback: EventListener = this.onFocusStolen.bind(this);
+    private onKeyDownCallback: EventListener = this.onKeyDown.bind(this);
+
+    private onFocusStolen(ev: CustomEvent) {
+        if (ev.detail === this) {
+            window.addEventListener("keydown", this.onKeyDownCallback);
+        } else {
+            window.removeEventListener("keydown", this.onKeyDownCallback);
+            this.cancelSelection();
+        }
+    }
+
+    componentWillMount() {
+        window.addEventListener("focusStolen", this.onFocusStolenCallback);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("focusStolen", this.onFocusStolenCallback);
+    }
+
+    /*** MOUSE EVENTS ***/
+
+    private onCellMouseDown(ev: MouseCellEvent) {
+        var that = this;
+        if (ev.button == 0) { // Left button
+            Events.stealFocus(this);
+            if (ev.shiftKey && this.state.selectionStart !== null) {
+                this.setState({
+                    selectionEnd: ev.cell.cellOffset,
+                    selectionMouseDown: true
+                });
+            } else {
+                this.setState({
+                    selectionStart: ev.cell.cellOffset,
+                    selectionEnd: ev.cell.cellOffset,
+                    selectionMouseDown: true
+                });
+            }
+
+            var stopSelection = (ev: MouseEvent) => {
+                that.setState({ selectionMouseDown: false });
+                window.removeEventListener("mouseup", stopSelection);
+            }
+
+            window.addEventListener("mouseup", stopSelection);
+            ev.preventDefault();
+            // Click on the outside of cell should cancel selection
+            ev.stopPropagation();
+        }
+    }
+
+    private onCellMouseOver(ev: MouseCellEvent) {
+        if (this.state.selectionMouseDown) {
+            this.setState({
+                selectionEnd: ev.cell.cellOffset
+            });
+            ev.preventDefault();
+        }
+    }
+
+    private onEditorMouseDown(ev: MouseEvent) {
+        this.cancelSelection();
+        ev.preventDefault();
+    }
+
+    /*** RENDERING ***/
     private renderRow(index: number): JSX.Element {
         var row: FileRow = this.fileContext.readRow(index, 16);
         var selectionRange = this.getSelectionRangeForRow(row);
@@ -154,7 +273,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
     render() {
         return (
-            <AutoSizer>
+            <AutoSizer onResize={this.onResize.bind(this)}>
                 {(dimensions: { width: number, height: number }) =>
                     (<div
                         className="editor"
@@ -165,7 +284,9 @@ export class Editor extends React.Component<EditorProps, EditorState> {
                             height={dimensions.height}
                             rowCount={this.fileContext.getNumberOfRows() }
                             rowRenderer={ this.renderRow.bind(this) } 
-                            rowHeight={16}
+                            rowHeight={EditorRowHeight}
+                            rowScroll={this.state.scrollPos}
+                            onScroll={ this.onScroll.bind(this) }
                             />
                         <div style={{
                             position: "absolute",

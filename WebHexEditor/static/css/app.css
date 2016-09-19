@@ -1,6 +1,7 @@
 ﻿/* Editor.tsx */
 .editor {
     font-family: monospace;
+    font-size: 14px;
 }
 
 /* EditorRow.tsx */

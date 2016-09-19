@@ -9,6 +9,8 @@
   },
   "files": [
     "./typings/index.d.ts",
+    "./src/Converters.ts",
+    "./src/Events.ts",
     "./src/Datastore/DatastoreWorkerRequest.ts",
     "./src/Datastore/DatastoreWorkerInstance.ts",
     "./src/Datastore/DataCache.ts",
@@ -22,7 +24,6 @@
     "./src/Layout/Editor/Editor.tsx",
     "./src/Layout/UINavbar.tsx",
     "./src/Layout/UIView.tsx",
-    "./src/Converters.ts",
     "./src/index.tsx"
   ]
 }

@@ -41,6 +41,7 @@
     <TypeScriptCompile Include="src\Datastore\DataCache.ts" />
     <TypeScriptCompile Include="src\Datastore\DatastoreWorkerRequest.ts" />
     <TypeScriptCompile Include="src\Datastore\FileContext.ts" />
+    <TypeScriptCompile Include="src\Events.ts" />
     <TypeScriptCompile Include="src\index.tsx" />
     <TypeScriptCompile Include="src\Converters.ts" />
     <TypeScriptCompile Include="src\Datastore\DatastoreWorkerInstance.ts" />

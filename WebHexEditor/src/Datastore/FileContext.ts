@@ -306,4 +306,8 @@ export default class FileContext {
             padding: rowLayout.offset % width
         };
     }
+
+    public getFileSize(): number {
+        return this.fileSize;
+    }
 }

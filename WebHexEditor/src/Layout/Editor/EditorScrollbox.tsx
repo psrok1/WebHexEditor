@@ -53,12 +53,21 @@ class EditorScrollbar extends React.Component<EditorScrollbarProps, EditorScroll
         window.addEventListener("mousemove", onMoveDrag);
         window.addEventListener("mouseup", onStopDrag);
 
+        ev.stopPropagation();
+        ev.preventDefault();
+    }
+
+    private clickScrollbar(ev: MouseEvent) {
+        // @todo: next, previous page
+        ev.stopPropagation();
         ev.preventDefault();
     }
 
     render() {
         return (
-            <div className="editor-scrollbar" style={{ height: this.props.scrollArea }}>
+            <div className="editor-scrollbar"
+                onMouseDown={ this.clickScrollbar.bind(this) }
+                style={{ height: this.props.scrollArea }}>
             <div className="editor-scroll"
                 style={{
                     top: this.evaluatePos(),
@@ -75,6 +84,8 @@ interface EditorScrollboxProps {
     rowRenderer: (index: number) => JSX.Element;
     rowCount: number;
     rowHeight: number;
+    rowScroll?: number;
+    onScroll?: (currentRow: number) => any;
 }
 
 interface EditorScrollboxState {
@@ -96,9 +107,20 @@ export default class EditorScrollbox extends React.Component<EditorScrollboxProp
             this.setState({ currentRow: index });
     }
 
+    private onScroll(index: number) {
+        if (this.props.onScroll)
+            this.props.onScroll(index);
+        this.setCurrentRow(index);
+    }
+
     private onWheel(ev: WheelEvent) {
         this.setCurrentRow(Math.floor(this.state.currentRow + ev.deltaY));
         ev.stopPropagation();
+    }
+
+    componentWillReceiveProps(nextProps: EditorScrollboxProps) {
+        if (nextProps.rowScroll != this.state.currentRow)
+            this.setCurrentRow(nextProps.rowScroll);
     }
 
     render() {
@@ -123,7 +145,7 @@ export default class EditorScrollbox extends React.Component<EditorScrollboxProp
                     scrollArea={ this.props.height }
                     scrollMax={ this.props.rowCount }
                     scrollTo={ this.state.currentRow }
-                    onScroll={ this.setCurrentRow.bind(this) }/>
+                    onScroll={ this.onScroll.bind(this) }/>
             </div>);
     }
 }
