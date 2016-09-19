@@ -40,6 +40,7 @@ export interface FileData {
 }
 
 export interface FileRow {
+    rowNo: number;
     padding?: number;
     fileData?: FileData;
     sectionLabel?: string;
@@ -262,10 +263,10 @@ export default class FileContext {
 
     public getByteCoordinates(position: number, width: number = 16): { row: number, column: number } {
         var section: FileSection;
-        var rowShift: number;
+        var rowShift: number = 0;
 
         // Do section lookup and evaluate row-shift
-        for (var i = 0; i < this.sections.length; i++, rowShift++)
+        for (var i = 0; i < this.sections.length && this.sections[i].offset <= position; i++ , rowShift++)
         {
             section = this.sections[i];
             // If section breaks the row: we need to shift next rows
@@ -292,6 +293,7 @@ export default class FileContext {
 
         if (rowLayout.section)
             return {
+                rowNo: rowNo,
                 sectionLabel: rowLayout.section.label,
                 sectionOffset: rowLayout.section.offset
             }
@@ -299,6 +301,7 @@ export default class FileContext {
         var data = this.readData(rowLayout.offset, rowLayout.dataLength);
 
         return {
+            rowNo: rowNo,
             fileData: data,
             padding: rowLayout.offset % width
         };

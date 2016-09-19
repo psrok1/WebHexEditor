@@ -3,6 +3,7 @@ import { AutoSizer, VirtualScroll } from "react-virtualized"
 import FileContext, { FileRow } from "../../Datastore/FileContext"
 import EditorRow from "./EditorRow"
 import EditorScrollbox from "./EditorScrollbox"
+import { MouseCellEvent } from "./EditorCell"
 
 import { GLComponentProps } from "../Base"
 
@@ -21,6 +22,7 @@ interface EditorState {
     interactivity?: InteractivityState;
     selectionStart?: number;
     selectionEnd?: number;
+    selectionMouseDown?: boolean;
 }
 
 export class Editor extends React.Component<EditorProps, EditorState> {
@@ -46,8 +48,78 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             });
     }
 
+    /*** MOUSE EVENTS ***/
+    private onCellMouseDown(ev: MouseCellEvent) {
+        var that = this;
+        if (ev.button == 0) {
+            // Left button
+            console.log("STARTED SELECTION "+ev.cell.cellOffset);
+            this.setState({
+                selectionStart: ev.cell.cellOffset,
+                selectionEnd: ev.cell.cellOffset,
+                selectionMouseDown: true
+            });
+
+            var stopSelection = (ev: MouseEvent) => {
+                that.setState({ selectionMouseDown: false });
+                window.removeEventListener("mouseup", stopSelection);
+            }
+
+            window.addEventListener("mouseup", stopSelection);
+            ev.preventDefault();
+        }
+    }
+
+    private onCellMouseOver(ev: MouseCellEvent) {
+        if (this.state.selectionMouseDown) {
+            this.setState({
+                selectionEnd: ev.cell.cellOffset
+            });
+            ev.preventDefault();
+        }
+    }
+
+    /*** RENDERING ***/
+    private getSelectionRangeForRow(row: FileRow): { start: number, end: number } {
+        // Selection isn't supported for section rows
+        if (row.sectionLabel)
+            return null;
+
+        var coStart = this.fileContext.getByteCoordinates(this.state.selectionStart, 16);
+        var coEnd = this.fileContext.getByteCoordinates(this.state.selectionEnd, 16);
+
+        // Sometimes selection start should be swapped with end
+        if (this.state.selectionEnd < this.state.selectionStart) {
+            var tmp = coStart;
+            coStart = coEnd;
+            coEnd = tmp;
+        }
+
+        var range = {
+            start: null as number,
+            end: null as number
+        };
+
+        if (coStart.row < row.rowNo)
+            range.start = row.padding;
+        else if (coStart.row == row.rowNo)
+            range.start = coStart.column;
+
+        if (coEnd.row > row.rowNo)
+            range.end = row.padding + row.fileData.data.length;
+        else if (coEnd.row == row.rowNo)
+            range.end = coEnd.column;
+
+        if (range.start === null || range.end === null)
+            range = null;
+
+        return range;
+    }
+
     private renderRow(index: number): JSX.Element {
         var row: FileRow = this.fileContext.readRow(index, 16);
+        var selectionRange = this.getSelectionRangeForRow(row);
+
         if (row.fileData && !row.fileData.complete &&
             this.state.interactivity !== InteractivityState.SoftWaiting)
         {
@@ -58,7 +130,13 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             setTimeout(() => this.setState({ interactivity: InteractivityState.SoftWaiting }), 0);
         }
 
-        return (<EditorRow key={index} row={row} />)
+        return (<EditorRow
+            key={index}
+            row={row}
+            selectionColumnStart={selectionRange ? selectionRange.start : null}
+            selectionColumnEnd={selectionRange ? selectionRange.end : null}
+            onCellMouseDown={this.onCellMouseDown.bind(this) }
+            onCellMouseOver={this.onCellMouseOver.bind(this) } />)
     }
 
     render() {

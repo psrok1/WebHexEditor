@@ -1,9 +1,21 @@
 ﻿import * as React from "react";
 import { FileRow, FileByte, FileByteSpecial } from "../../Datastore/FileContext";
 import { Converters } from "../../Converters.ts"
+import EditorCell, { MouseCellEvent } from "./EditorCell"
 
 export interface EditorRowProps {
     row: FileRow;
+
+    selectionColumnStart?: number;
+    selectionColumnEnd?: number;
+
+    onCellMouseDown?: (ev: MouseCellEvent) => any;
+    onCellMouseUp?: (ev: MouseCellEvent) => any;
+    onCellMouseOver?: (ev: MouseCellEvent) => any;
+    onCellMouseOut?: (ev: MouseCellEvent) => any;
+
+    onOffsetClick?: any;
+    onSectionClick?: any;
 }
 
 function formatSectionLabel(label: string) {
@@ -52,30 +64,50 @@ export default class EditorRow extends React.Component<EditorRowProps, {}>
         /* Left-side padding */
         for (var i = 0; i < this.props.row.padding; i++)
         {
-            byteCells.push(<div className="editor-cell editor-byte-cell" key={cellKey++}>&nbsp;&nbsp;</div>);
-            asciiCells.push(<div className="editor-cell editor-ascii-cell" key={cellKey++}>&nbsp;</div>);
+            byteCells.push(<EditorCell key={i} value={null} />);
+            asciiCells.push(<EditorCell key={i} ascii={true} value={null} />);
         }
 
         /* Cell drawing */
-        for (var idx in this.props.row.fileData.data)
+        for (var idx = 0; idx < this.props.row.fileData.data.length; idx++)
         {
             var byte = this.props.row.fileData.data[idx];
+            var selected = (this.props.selectionColumnStart !== null &&
+                (this.props.row.padding + idx) >= this.props.selectionColumnStart &&
+                (this.props.row.padding + idx) <= this.props.selectionColumnEnd);
+
+            var bindIfExist = (cb: Function) => cb && cb.bind(this);
+
             byteCells.push(
-                <div className="editor-cell editor-byte-cell" key={cellKey++}>
-                    { byteToString(byte) }
-                </div>);
+                <EditorCell
+                    cellOffset={this.props.row.fileData.offset + idx}
+                    key={this.props.row.padding + idx}
+                    value={byte}
+                    onMouseDown={ bindIfExist(this.props.onCellMouseDown) }
+                    onMouseUp={ bindIfExist(this.props.onCellMouseUp) }
+                    onMouseOver={ bindIfExist(this.props.onCellMouseOver) }
+                    onMouseOut={ bindIfExist(this.props.onCellMouseOut) }
+                    selected={ selected }/>
+            );
             asciiCells.push(
-                <div className="editor-cell editor-ascii-cell" key={cellKey++}>
-                    { Converters.byteToAscii(byte) }
-                </div>);
+                <EditorCell
+                    cellOffset={this.props.row.fileData.offset + idx}
+                    key={this.props.row.padding + idx}
+                    value={byte}
+                    onMouseDown={ bindIfExist(this.props.onCellMouseDown) }
+                    onMouseUp={   bindIfExist(this.props.onCellMouseUp  ) }
+                    onMouseOver={ bindIfExist(this.props.onCellMouseOver) }
+                    onMouseOut={  bindIfExist(this.props.onCellMouseOut ) }
+                    selected={ selected }
+                    ascii={ true } />
+            );
         }
 
         /* Right-side padding */
         for (var i = byteCells.length; i < 16 /* WIDTH */; i++) {
-            byteCells.push(<div className="editor-cell editor-byte-cell" key={cellKey++}>&nbsp;&nbsp;</div>);
-            asciiCells.push(<div className="editor-cell editor-ascii-cell" key={cellKey++}>&nbsp;</div>);
+            byteCells.push(<EditorCell key={i} value={null} />);
+            asciiCells.push(<EditorCell key={i} value={null} ascii={true}/>);
         }
-
         return (
             <div className="editor-row">
                 { offsetCell }

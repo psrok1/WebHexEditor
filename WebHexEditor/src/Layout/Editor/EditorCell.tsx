@@ -2,27 +2,26 @@
 import { FileByte, FileByteSpecial } from "../../Datastore/FileContext";
 import { Converters } from "../../Converters.ts"
 
-interface EditorCellDescriptor {
-    row: number;
-    column: number;
+export interface EditorCellDescriptor {
+    cellOffset: number;
     ascii: boolean;
 }
 
-interface MouseCellEvent extends MouseEvent {
+export interface MouseCellEvent extends MouseEvent {
     cell: EditorCellDescriptor;
 }
 
 interface EditorCellProps {
-    row: number;
-    column: number;
     value: number;
+    cellOffset?: number;
 
     color?: string;
     partial?: boolean;       // during modification
     selected?: boolean;
     ascii?: boolean;         // ascii cells
 
-    onClick?: (ev: MouseCellEvent) => any;
+    onMouseDown?: (ev: MouseCellEvent) => any;
+    onMouseUp?: (ev: MouseCellEvent) => any;
     onMouseOver?: (ev: MouseCellEvent) => any;
     onMouseOut?: (ev: MouseCellEvent) => any;
 }
@@ -31,7 +30,7 @@ function byteToString(b: FileByte): string {
     if (b == FileByteSpecial.PENDING)
         return "??";
     else if (b == FileByteSpecial.EOF)
-        return "&nbsp;&nbsp;";
+        return "\u00a0\u00a0";
     else
         return Converters.hexWithPad(b, 2);
 }
@@ -41,18 +40,21 @@ export default class EditorCell extends React.Component<EditorCellProps, {}> {
     private onMouseEvent(cb: (ev: MouseCellEvent) => any, ev: MouseEvent) {
         var cellEvent: MouseCellEvent = ev as MouseCellEvent;
         cellEvent.cell = {
-            row: this.props.row,
-            column: this.props.column,
+            cellOffset: this.props.cellOffset,
             ascii: this.props.ascii
         };
-        cb(cellEvent);
+
+        if (cb)
+            cb(cellEvent);
     }
 
     render() {
         var val: string;
 
         if (this.props.value == null)
-            val = "&nbsp;" + (this.props.ascii ? "" : "&nbsp;");
+            val = "\u00a0" + (this.props.ascii ? "" : "\u00a0");
+        else if (this.props.partial)
+            val = this.props.ascii ? "." : (byteToString(this.props.value)[0] + "_");
         else
             val = this.props.ascii ? Converters.byteToAscii(this.props.value) : byteToString(this.props.value);
 
@@ -62,9 +64,10 @@ export default class EditorCell extends React.Component<EditorCellProps, {}> {
                     (this.props.ascii
                         ? "editor-ascii-cell"
                         : "editor-byte-cell") }
-                onClick={this.onMouseEvent.bind(this, this.props.onClick) }
+                onMouseDown = {this.onMouseEvent.bind(this, this.props.onMouseDown) }
+                onMouseUp   = {this.onMouseEvent.bind(this, this.props.onMouseUp) }
                 onMouseOver = { this.onMouseEvent.bind(this, this.props.onMouseOver) }
-                onMouseOut = { this.onMouseEvent.bind(this, this.props.onMouseOut) }
+                onMouseOut  = { this.onMouseEvent.bind(this, this.props.onMouseOut) }
                 style = {{
                     color: this.props.color,
                     backgroundColor: this.props.selected ? "lightskyblue" : null

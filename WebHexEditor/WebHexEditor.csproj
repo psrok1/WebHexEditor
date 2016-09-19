@@ -46,6 +46,7 @@
     <TypeScriptCompile Include="src\Datastore\DatastoreWorkerInstance.ts" />
     <TypeScriptCompile Include="src\Layout\Base.tsx" />
     <TypeScriptCompile Include="src\Layout\Editor\Editor.tsx" />
+    <TypeScriptCompile Include="src\Layout\Editor\EditorCell.tsx" />
     <TypeScriptCompile Include="src\Layout\Editor\EditorRow.tsx" />
     <TypeScriptCompile Include="src\Layout\Editor\EditorScrollbox.tsx" />
     <TypeScriptCompile Include="src\Layout\Hello.tsx" />
