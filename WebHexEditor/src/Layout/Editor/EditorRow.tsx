@@ -1,7 +1,7 @@
 ﻿import * as React from "react";
 import { FileRow, FileByte, FileByteSpecial } from "../../Datastore/FileContext";
 import { Converters } from "../../Converters.ts"
-import EditorCell, { MouseCellEvent } from "./EditorCell"
+import EditorCell, { MouseCellEvent, EditorCellSelectionMode } from "./EditorCell"
 
 export interface EditorRowProps {
     row: FileRow;
@@ -16,6 +16,8 @@ export interface EditorRowProps {
 
     onOffsetClick?: any;
     onSectionClick?: any;
+
+    asciiMode?: boolean;
 }
 
 function formatSectionLabel(label: string) {
@@ -76,6 +78,12 @@ export default class EditorRow extends React.Component<EditorRowProps, {}>
                 (this.props.row.padding + idx) >= this.props.selectionColumnStart &&
                 (this.props.row.padding + idx) <= this.props.selectionColumnEnd);
 
+            var selectionMode = EditorCellSelectionMode.NoSelection;
+            if (selected)
+                selectionMode = this.props.asciiMode
+                    ? EditorCellSelectionMode.AsciiSelection
+                    : EditorCellSelectionMode.ByteSelection;
+
             var bindIfExist = (cb: Function) => cb && cb.bind(this);
 
             byteCells.push(
@@ -87,7 +95,7 @@ export default class EditorRow extends React.Component<EditorRowProps, {}>
                     onMouseUp={ bindIfExist(this.props.onCellMouseUp) }
                     onMouseOver={ bindIfExist(this.props.onCellMouseOver) }
                     onMouseOut={ bindIfExist(this.props.onCellMouseOut) }
-                    selected={ selected }/>
+                    selected={ selectionMode }/>
             );
             asciiCells.push(
                 <EditorCell
@@ -98,7 +106,7 @@ export default class EditorRow extends React.Component<EditorRowProps, {}>
                     onMouseUp={   bindIfExist(this.props.onCellMouseUp  ) }
                     onMouseOver={ bindIfExist(this.props.onCellMouseOver) }
                     onMouseOut={  bindIfExist(this.props.onCellMouseOut ) }
-                    selected={ selected }
+                    selected={ selectionMode }
                     ascii={ true } />
             );
         }

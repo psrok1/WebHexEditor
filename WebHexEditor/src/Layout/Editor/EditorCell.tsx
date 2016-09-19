@@ -11,13 +11,19 @@ export interface MouseCellEvent extends MouseEvent {
     cell: EditorCellDescriptor;
 }
 
+export enum EditorCellSelectionMode {
+    NoSelection = 0,
+    ByteSelection = 1,
+    AsciiSelection = 2
+}
+
 interface EditorCellProps {
     value: number;
     cellOffset?: number;
 
     color?: string;
     partial?: boolean;       // during modification
-    selected?: boolean;
+    selected?: EditorCellSelectionMode;
     ascii?: boolean;         // ascii cells
 
     onMouseDown?: (ev: MouseCellEvent) => any;
@@ -58,6 +64,12 @@ export default class EditorCell extends React.Component<EditorCellProps, {}> {
         else
             val = this.props.ascii ? Converters.byteToAscii(this.props.value) : byteToString(this.props.value);
 
+        var selectionColor: string = null;
+        if (this.props.selected) {
+            var asciiMode: boolean = (this.props.selected == EditorCellSelectionMode.AsciiSelection)
+            selectionColor = (this.props.ascii ? !asciiMode : asciiMode) ? "lightcyan" : "lightskyblue";
+        }
+
         return (
             <div
                 className={"editor-cell " +
@@ -70,7 +82,7 @@ export default class EditorCell extends React.Component<EditorCellProps, {}> {
                 onMouseOut  = { this.onMouseEvent.bind(this, this.props.onMouseOut) }
                 style = {{
                     color: this.props.color,
-                    backgroundColor: this.props.selected ? "lightskyblue" : null
+                    backgroundColor: selectionColor
                 }}>
                 {val}
             </div>);

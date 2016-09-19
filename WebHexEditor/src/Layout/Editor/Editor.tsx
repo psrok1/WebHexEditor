@@ -25,9 +25,11 @@ interface EditorState {
     interactivity?: InteractivityState;
     scrollPos?: number;
     visibleRows?: number;
+
     selectionStart?: number;
     selectionEnd?: number;
     selectionMouseDown?: boolean;
+    asciiMode?: boolean;
 }
 
 export class Editor extends React.Component<EditorProps, EditorState> {
@@ -40,7 +42,8 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             selectionStart: null,
             selectionEnd: null,
             scrollPos: 0,
-            visibleRows: null
+            visibleRows: null,
+            asciiMode: false
         };
 
         this.fileContext = new FileContext(
@@ -172,6 +175,8 @@ export class Editor extends React.Component<EditorProps, EditorState> {
                 this.cancelSelection();
                 break;
             case "Tab":
+                if(this.state.selectionStart !== null)
+                    this.setState({ asciiMode: !this.state.asciiMode });
                 break;
             default:
                 return;
@@ -211,13 +216,15 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             if (ev.shiftKey && this.state.selectionStart !== null) {
                 this.setState({
                     selectionEnd: ev.cell.cellOffset,
-                    selectionMouseDown: true
+                    selectionMouseDown: true,
+                    asciiMode: ev.cell.ascii
                 });
             } else {
                 this.setState({
                     selectionStart: ev.cell.cellOffset,
                     selectionEnd: ev.cell.cellOffset,
-                    selectionMouseDown: true
+                    selectionMouseDown: true,
+                    asciiMode: ev.cell.ascii
                 });
             }
 
@@ -268,7 +275,8 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             selectionColumnStart={selectionRange ? selectionRange.start : null}
             selectionColumnEnd={selectionRange ? selectionRange.end : null}
             onCellMouseDown={this.onCellMouseDown.bind(this) }
-            onCellMouseOver={this.onCellMouseOver.bind(this) } />)
+            onCellMouseOver={this.onCellMouseOver.bind(this) }
+            asciiMode = {this.state.asciiMode} />)
     }
 
     render() {
