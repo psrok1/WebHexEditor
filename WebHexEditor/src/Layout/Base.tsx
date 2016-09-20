@@ -53,7 +53,6 @@ let layoutConfig: GoldenLayout.Config = {
 export var layout: GoldenLayout = null;
 
 export function initLayout(container: HTMLElement) {
-    console.log(container);
     layout = new GoldenLayout(layoutConfig, container);
 
     layout.registerComponent("Hello", Hello);

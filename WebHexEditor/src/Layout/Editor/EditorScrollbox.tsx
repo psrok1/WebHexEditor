@@ -99,7 +99,6 @@ export default class EditorScrollbox extends React.Component<EditorScrollboxProp
     }
 
     private setCurrentRow(index: number) {
-        console.log(index);
         index = Math.max(0, index);
         index = Math.min(this.props.rowCount - 1, index);
 

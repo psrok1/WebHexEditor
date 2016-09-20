@@ -92,14 +92,11 @@ export default class FileContext {
         // Trim to file size
         size = Math.min(size, this.fileSize - offs);
 
-        console.time("REQUESTING FOR PAGE");
         this.workerInstance.sendRequest(
             /* request */
             new DatastoreWorker.ReadRequest(offs, size),
             /* response handler */
             (e: MessageEvent) => {
-                console.log("READ DONE!");
-                console.timeEnd("REQUESTING FOR PAGE");
                 var response: DatastoreWorker.ReadResponse = e.data;
 
                 this.dataCache.insertPage(offs, response.data);
@@ -249,7 +246,6 @@ export default class FileContext {
             else {
                 var val = this.dataCache.getByte(offset + i, this.onDataRequest.bind(this));
                 if (val == null) {
-                    console.log("CACHE MISSED! "+(offset+i));
                     this.waitingForData = true;
                     result.data.push(FileByteSpecial.PENDING);
                     result.complete = false;

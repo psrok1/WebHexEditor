@@ -76,7 +76,6 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             height: this.props.glContainer.height,
             width: this.props.glContainer.width
         };
-        console.log("y " + dimensions.width + " - x " + dimensions.height);
         this.setState({
             visibleRows: Math.ceil(dimensions.height / EditorRowHeight),
             dimensions: dimensions
@@ -132,7 +131,6 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     }
 
     private onScroll(index: number) {
-        console.log(index);
         this.setState({ scrollPos: index });
     }
 
@@ -144,9 +142,6 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         var s: number;
         var focusScroll = (s: number) => {
             var coords = this.fileContext.getByteCoordinates(s);
-
-            console.log(coords.row + " => (" + this.state.scrollPos + "," +
-                (this.state.scrollPos + this.state.visibleRows) + ")");
 
             if (coords.row < this.state.scrollPos)
                 return coords.row;
@@ -277,18 +272,24 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     }
 
     /*** RENDERING ***/
+    private waitingForData: boolean = false;
+
     private renderRow(index: number): JSX.Element {
         var row: FileRow = this.fileContext.readRow(index, 16);
         var selectionRange = this.getSelectionRangeForRow(row);
 
-        if (row.fileData && !row.fileData.complete &&
+        if (!this.waitingForData && row.fileData && !row.fileData.complete &&
             this.state.interactivity !== InteractivityState.SoftWaiting)
         {
             /**
              * React forbids state setting during render, so we'll just do it
              * immediately after.
              */
-            setTimeout(() => this.setState({ interactivity: InteractivityState.SoftWaiting }), 0);
+            this.waitingForData = true;
+            setTimeout(() => {
+                this.setState({ interactivity: InteractivityState.SoftWaiting })
+                this.waitingForData = false;
+            }, 0);
         }
 
         return (<EditorRow

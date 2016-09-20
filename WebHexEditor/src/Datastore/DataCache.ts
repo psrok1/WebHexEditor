@@ -24,7 +24,6 @@ export default class DataCache {
 
         // No page in cache? We need to send request for it
         if (!page) {
-            console.log("CACHE REQUEST " + pageBase);
             requestCb(pageBase, CACHE_PAGE_SIZE);
             return null;
         } else {
