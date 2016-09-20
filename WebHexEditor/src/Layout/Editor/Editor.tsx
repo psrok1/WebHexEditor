@@ -2,6 +2,7 @@
 import FileContext, { FileRow } from "../../Datastore/FileContext"
 import EditorRow from "./EditorRow"
 import EditorScrollbox from "./EditorScrollbox"
+import EditorOverlay from "./EditorOverlay"
 import { MouseCellEvent } from "./EditorCell"
 import { Events } from "../../Events"
 
@@ -14,7 +15,6 @@ interface EditorProps extends GLComponentProps {
 }
 
 enum InteractivityState {
-    Initializing = 0,
     HardWaiting  = 1,
     SoftWaiting  = 2,
     Ready        = 3
@@ -22,6 +22,9 @@ enum InteractivityState {
 
 interface EditorState {
     interactivity?: InteractivityState;
+    waitingTitle?: string;
+    waitingProgress?: number;
+
     scrollPos?: number;
     visibleRows?: number;
     dimensions?: {
@@ -41,7 +44,9 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     constructor(props: EditorProps) {
         super();
         this.state = {
-            interactivity: InteractivityState.Initializing,
+            interactivity: InteractivityState.HardWaiting,
+            waitingTitle: "Loading file...",
+            waitingProgress: null,
             selectionStart: null,
             selectionEnd: null,
             dimensions: {
@@ -309,14 +314,13 @@ export class Editor extends React.Component<EditorProps, EditorState> {
                     rowScroll={this.state.scrollPos}
                     onScroll={ this.onScroll.bind(this) }
                     />
-                <div style={{
-                    position: "absolute",
-                    width: this.state.dimensions.width,
-                    height: this.state.dimensions.height,
-                    top: "0px",
-                    display: (this.state.interactivity <= InteractivityState.HardWaiting)
-                        ? "block" : "none"
-                }}>WAIT...</div>
+                <EditorOverlay
+                    visible={this.state.interactivity == InteractivityState.HardWaiting}
+                    width={this.state.dimensions.width}
+                    height={this.state.dimensions.height}
+                    label={this.state.waitingTitle}
+                    progress={this.state.waitingProgress}
+                    />
             </div>);
     }
 }

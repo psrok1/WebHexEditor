@@ -4,6 +4,35 @@
     font-size: 14px;
 }
 
+.editor-overlay {
+    color: black;
+    margin: 0;
+    padding: 0;
+    display: table;
+    background-color: rgba(3, 169, 244, 0.11);
+}
+
+.editor-overlay-wrapper {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.editor-overlay-message {
+    background-color: rgba(96, 125, 139, 0.33);
+    padding: 8px 0 8px 0;
+    margin: auto;
+    width: 50%;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    border: 1px solid black;
+}
+
+.editor-overlay-progress {
+    margin: auto;
+    width: 80%;
+}
+
 /* EditorRow.tsx */
 
 .editor-row { 
