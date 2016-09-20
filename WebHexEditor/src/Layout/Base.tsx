@@ -1,7 +1,7 @@
 ﻿import GoldenLayout = require("golden-layout");
 
 import { Hello } from "./Hello";
-import { Editor } from "./Editor/Editor";
+import Editor from "./Editor/Editor";
 
 /***
  * This interface should be inherited by all props interfaces of main layout components

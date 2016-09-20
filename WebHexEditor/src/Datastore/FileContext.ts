@@ -108,7 +108,11 @@ export default class FileContext {
 
     public getNumberOfRows(width: number = 16): number {
         var rowsNumber = Math.ceil((this.fileSize + 1) / width);
-        for (var section of this.sections) {
+        for (var section of this.sections)
+        {
+            if (section.offset > (this.fileSize + 1))
+                break;
+
             if (section.offset % width != 0)
                 rowsNumber += 2;
             else
@@ -173,7 +177,6 @@ export default class FileContext {
 
             currentRow = rowNo;
         }
-
         // Build layout array
         while (layout.length < rowsLimit && currentOffset < size) {
             if (succSectionIndex !== null && currentOffset >= this.sections[succSectionIndex].offset) {

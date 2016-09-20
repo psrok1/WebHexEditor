@@ -17,6 +17,9 @@ export default class UIView extends React.Component<{}, UIViewState>
 
     onNavbarSelect(eventKey: UINavbarItem, event?: React.SyntheticEvent) {
         switch (eventKey) {
+            case UINavbarItem.NewFile:
+                this.newFile();
+                break;
             case UINavbarItem.OpenFile:
                 this.setState({ loadModalOpened: true });
                 break;
@@ -29,7 +32,15 @@ export default class UIView extends React.Component<{}, UIViewState>
         this.setState({ loadModalOpened: false });
     }
 
-    loadFile(file: File) {
+    private newFile() {
+        layout.root.contentItems[0].addChild({
+            type: 'react-component',
+            component: 'Editor',
+            props: { file: new File([], "freshFile")}
+        });
+    }
+
+    private loadFile(file: File) {
         this.loadModalClose();
         layout.root.contentItems[0].addChild({
             type: 'react-component',

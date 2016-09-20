@@ -1,10 +1,15 @@
-﻿export namespace Events {
-    var focusedObject: any = null;
+﻿import Editor from "./Layout/Editor/Editor"
 
-    export function stealFocus(object: any) {
-        if (object !== focusedObject) {
+// @todo
+// I think it should be renamed to GlobalFocus
+
+export namespace Events {
+    var focusedEditor: Editor = null;
+
+    export function stealFocus(object: Editor) {
+        if (object !== focusedEditor) {
             var event = new CustomEvent("focusStolen", { 'detail': object });
-            focusedObject = object;
+            focusedEditor = object;
             window.dispatchEvent(event);
         }
     }

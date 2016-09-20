@@ -42,7 +42,7 @@ interface EditorState {
     asciiMode?: boolean;
 }
 
-export class Editor extends React.Component<EditorProps, EditorState> {
+export default class Editor extends React.Component<EditorProps, EditorState> {
     private fileContext: FileContext;
 
     constructor(props: EditorProps) {
