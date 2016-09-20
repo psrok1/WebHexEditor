@@ -25,6 +25,7 @@ interface EditorCellProps {
     partial?: boolean;       // during modification
     selected?: EditorCellSelectionMode;
     ascii?: boolean;         // ascii cells
+    insertionMode?: boolean  // insertion mode
 
     onMouseDown?: (ev: MouseCellEvent) => any;
     onMouseUp?: (ev: MouseCellEvent) => any;
@@ -60,14 +61,17 @@ export default class EditorCell extends React.Component<EditorCellProps, {}> {
         if (this.props.value == null)
             val = "\u00a0" + (this.props.ascii ? "" : "\u00a0");
         else if (this.props.partial)
-            val = this.props.ascii ? "." : (byteToString(this.props.value)[0] + "_");
+            val = this.props.ascii ? "." : (byteToString(this.props.value)[1] + "_");
         else
             val = this.props.ascii ? Converters.byteToAscii(this.props.value) : byteToString(this.props.value);
 
         var selectionColor: string = null;
         if (this.props.selected) {
             var asciiMode: boolean = (this.props.selected == EditorCellSelectionMode.AsciiSelection)
-            selectionColor = (this.props.ascii ? !asciiMode : asciiMode) ? "lightcyan" : "lightskyblue";
+            if (this.props.insertionMode)
+                selectionColor = (this.props.ascii ? !asciiMode : asciiMode) ? "yellow" : "gold";
+            else
+                selectionColor = (this.props.ascii ? !asciiMode : asciiMode) ? "lightcyan" : "lightskyblue";
         }
 
         return (

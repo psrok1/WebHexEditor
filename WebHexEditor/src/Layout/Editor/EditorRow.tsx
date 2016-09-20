@@ -17,6 +17,8 @@ export interface EditorRowProps {
     onOffsetClick?: any;
     onSectionClick?: any;
 
+    partialEdit?: number;
+    insertionMode?: boolean;
     asciiMode?: boolean;
 }
 
@@ -74,39 +76,51 @@ export default class EditorRow extends React.Component<EditorRowProps, {}>
         for (var idx = 0; idx < this.props.row.fileData.data.length; idx++)
         {
             var byte = this.props.row.fileData.data[idx];
+            var partial = false;
+
+            // Evaluating selection
             var selected = (this.props.selectionColumnStart !== null &&
                 (this.props.row.padding + idx) >= this.props.selectionColumnStart &&
                 (this.props.row.padding + idx) <= this.props.selectionColumnEnd);
 
             var selectionMode = EditorCellSelectionMode.NoSelection;
-            if (selected)
+            if (selected) {
                 selectionMode = this.props.asciiMode
                     ? EditorCellSelectionMode.AsciiSelection
                     : EditorCellSelectionMode.ByteSelection;
 
-            var bindIfExist = (cb: Function) => cb && cb.bind(this);
+                // Partial edit mode
+                if (this.props.partialEdit !== null) {
+                    byte = this.props.partialEdit;
+                    partial = true;
+                }
+            }
 
             byteCells.push(
                 <EditorCell
                     cellOffset={this.props.row.fileData.offset + idx}
                     key={this.props.row.padding + idx}
                     value={byte}
-                    onMouseDown={ bindIfExist(this.props.onCellMouseDown) }
-                    onMouseUp={ bindIfExist(this.props.onCellMouseUp) }
-                    onMouseOver={ bindIfExist(this.props.onCellMouseOver) }
-                    onMouseOut={ bindIfExist(this.props.onCellMouseOut) }
-                    selected={ selectionMode }/>
+                    partial={partial}
+                    onMouseDown={ this.props.onCellMouseDown }
+                    onMouseUp={   this.props.onCellMouseUp }
+                    onMouseOver={ this.props.onCellMouseOver }
+                    onMouseOut={  this.props.onCellMouseOut }
+                    selected={ selectionMode }
+                    insertionMode={ this.props.insertionMode } />
             );
             asciiCells.push(
                 <EditorCell
                     cellOffset={this.props.row.fileData.offset + idx}
                     key={this.props.row.padding + idx}
                     value={byte}
-                    onMouseDown={ bindIfExist(this.props.onCellMouseDown) }
-                    onMouseUp={   bindIfExist(this.props.onCellMouseUp  ) }
-                    onMouseOver={ bindIfExist(this.props.onCellMouseOver) }
-                    onMouseOut={  bindIfExist(this.props.onCellMouseOut ) }
+                    partial={partial}
+                    onMouseDown={ this.props.onCellMouseDown }
+                    onMouseUp={ this.props.onCellMouseUp }
+                    onMouseOver={ this.props.onCellMouseOver }
+                    onMouseOut={ this.props.onCellMouseOut }
                     selected={ selectionMode }
+                    insertionMode={ this.props.insertionMode }
                     ascii={ true } />
             );
         }

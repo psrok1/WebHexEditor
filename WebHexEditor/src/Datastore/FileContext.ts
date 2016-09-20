@@ -223,6 +223,10 @@ export default class FileContext {
         }
     }
 
+    private invalidateLayout() {
+        this.currentLayout = null;
+    }
+
     /**
      * Reads data from specified offset
      */
@@ -305,5 +309,51 @@ export default class FileContext {
 
     public getFileSize(): number {
         return this.fileSize;
+    }
+
+    public insertBytes(position: number, bytes: number[]) {
+        // Pre-request size "prediction"
+        this.fileSize += bytes.length;
+        this.invalidateLayout();
+
+        // Write-through
+        if (bytes.length == 1)
+            this.dataCache.insertByte(position, bytes[0])
+        else
+            this.dataCache.invalidate();
+
+        this.workerInstance.sendRequest(
+            /* request */
+            new DatastoreWorker.InsertRequest(position, bytes),
+            /* response handler */
+            (e: MessageEvent) => {
+                var response: DatastoreWorker.SuccessResponse = e.data;
+                this.fileSize = response.newFileSize;
+                this.onUpdateAction();
+            }
+        );
+    }
+
+    public overwriteBytes(position: number, bytes: number[]) {
+        // Pre-request size "prediction"
+        this.fileSize = Math.max(this.fileSize, position + bytes.length);
+        this.invalidateLayout();
+
+        // Write-through
+        if (bytes.length == 1)
+            this.dataCache.setByte(position, bytes[0])
+        else
+            this.dataCache.invalidate();
+
+        this.workerInstance.sendRequest(
+            /* request */
+            new DatastoreWorker.OverwriteRequest(position, bytes),
+            /* response handler */
+            (e: MessageEvent) => {
+                var response: DatastoreWorker.SuccessResponse = e.data;
+                this.fileSize = response.newFileSize;
+                this.onUpdateAction();
+            }
+        );
     }
 }

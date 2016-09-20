@@ -35,6 +35,10 @@ interface EditorState {
     selectionStart?: number;
     selectionEnd?: number;
     selectionMouseDown?: boolean;
+
+    insertionMode?: boolean;
+    partialEdit?: number;
+
     asciiMode?: boolean;
 }
 
@@ -55,6 +59,8 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             },
             scrollPos: 0,
             visibleRows: null,
+            insertionMode: false,
+            partialEdit: null,
             asciiMode: false
         };
 
@@ -124,9 +130,11 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     }
 
     private cancelSelection() {
+        Events.forgetFocus();
         this.setState({
             selectionStart: null,
-            selectionEnd: null
+            selectionEnd: null,
+            partialEdit: null
         });
     }
 
@@ -136,45 +144,108 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         this.setState({ scrollPos: index });
     }
 
+    private focusScroll(offs: number) {
+        var scrollTo = this.state.scrollPos;
+        var coords = this.fileContext.getByteCoordinates(offs);
+
+        if (coords.row < this.state.scrollPos)
+            scrollTo = coords.row;
+        if (coords.row >= (this.state.scrollPos + this.state.visibleRows))
+            scrollTo = coords.row - this.state.visibleRows + 1;
+
+        if (scrollTo != this.state.scrollPos)
+            this.setState({ scrollPos: scrollTo });
+    }
+
     private moveSelection(moveOffset: number, expand: boolean = false) {
         // Nothing to move?
         if (this.state.selectionStart === null)
             return;
 
         var s: number;
-        var focusScroll = (s: number) => {
-            var coords = this.fileContext.getByteCoordinates(s);
-
-            if (coords.row < this.state.scrollPos)
-                return coords.row;
-            if (coords.row >= (this.state.scrollPos + this.state.visibleRows))
-                return coords.row - this.state.visibleRows + 1;
-
-            return this.state.scrollPos;
-        }
 
         if (expand) {
             // Expanding selection
             s = Math.min(this.fileContext.getFileSize(),
                 Math.max(0, this.state.selectionEnd + moveOffset));
+            this.focusScroll(s);
             this.setState({
                 selectionEnd: s,
-                scrollPos: focusScroll(s)
+                partialEdit: null
             });
         } else {
             // Selecting next row
             s = (moveOffset < 0 ? Math.min : Math.max)(this.state.selectionStart, this.state.selectionEnd);
             s = Math.min(this.fileContext.getFileSize(),
                 Math.max(0, s + moveOffset));
+            this.focusScroll(s);
             this.setState({
                 selectionStart: s,
                 selectionEnd: s,
-                scrollPos: focusScroll(s)
+                partialEdit: null
             });
         }
     }
 
     /*** KEYBOARD EVENTS ***/
+    // Returns true if handled, false otherwise
+    private onEditKeyDown(ev: KeyboardEvent): boolean {
+        // Only one byte selected?
+        if (this.state.selectionStart === null ||
+            this.state.selectionMouseDown ||
+            this.state.selectionStart !== this.state.selectionEnd)
+            return false;
+
+        // Interactivity enabled?
+        if (this.state.interactivity !== InteractivityState.Ready)
+            return false;
+
+        // Not a special char?
+        if (ev.key.length != 1)
+            return false;
+
+        var byte: number = null;
+
+        this.focusScroll(this.state.selectionStart);
+
+        if (this.state.asciiMode) {
+            byte = ev.key.charCodeAt(0);
+
+            // Has printable code?
+            if (byte < 32 || byte > 126)
+                return false;
+        } else {
+            byte = "0123456789ABCDEF".indexOf(ev.key[0].toUpperCase());
+
+            // In hex-set?
+            if (byte < 0)
+                return false;
+
+            console.log(byte);
+
+            if (!this.state.partialEdit) {
+                // First nibble?
+                // Set it and wait for more
+                if (this.state.insertionMode)
+                    this.fileContext.insertBytes(this.state.selectionStart, [byte << 4]);
+                this.setState({ partialEdit: byte });
+                return true;
+            }
+
+            // Second nibble
+            byte = (this.state.partialEdit << 4) + byte;
+        }
+
+        // It's great time to write it to file!
+        if (this.state.insertionMode && this.state.asciiMode)
+            this.fileContext.insertBytes(this.state.selectionStart, [byte]);
+        else
+            this.fileContext.overwriteBytes(this.state.selectionStart, [byte]);
+
+        this.moveSelection(1);
+        return true;
+    }
+
     private onKeyDown(ev: KeyboardEvent) {
         switch (ev.key) {
             case "ArrowDown":
@@ -194,9 +265,20 @@ export class Editor extends React.Component<EditorProps, EditorState> {
                 break;
             case "Tab":
                 if(this.state.selectionStart !== null)
-                    this.setState({ asciiMode: !this.state.asciiMode });
+                    this.setState({
+                        asciiMode: !this.state.asciiMode,
+                        partialEdit: null
+                    });
+                break;
+            case "Insert":
+                if (this.state.selectionStart !== null)
+                    this.setState({
+                        insertionMode: !this.state.insertionMode,
+                        partialEdit: null
+                    });
                 break;
             default:
+                this.onEditKeyDown(ev);
                 return;
         }
 
@@ -236,14 +318,16 @@ export class Editor extends React.Component<EditorProps, EditorState> {
                 this.setState({
                     selectionEnd: ev.cell.cellOffset,
                     selectionMouseDown: true,
-                    asciiMode: ev.cell.ascii
+                    asciiMode: ev.cell.ascii,
+                    partialEdit: null
                 });
             } else {
                 this.setState({
                     selectionStart: ev.cell.cellOffset,
                     selectionEnd: ev.cell.cellOffset,
                     selectionMouseDown: true,
-                    asciiMode: ev.cell.ascii
+                    asciiMode: ev.cell.ascii,
+                    partialEdit: null
                 });
             }
 
@@ -301,6 +385,8 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             selectionColumnEnd={selectionRange ? selectionRange.end : null}
             onCellMouseDown={this.onCellMouseDown.bind(this) }
             onCellMouseOver={this.onCellMouseOver.bind(this) }
+            insertionMode = {this.state.insertionMode}
+            partialEdit = { this.state.partialEdit }
             asciiMode = {this.state.asciiMode} />)
     }
 

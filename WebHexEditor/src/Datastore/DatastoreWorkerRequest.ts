@@ -157,7 +157,7 @@ module DatastoreWorker {
     }
 
     export class SuccessResponse extends Message {
-        private newFileSize: number;
+        newFileSize: number;
 
         constructor(newFileSize: number = 0) {
             super(MessageType.SuccessResponse);

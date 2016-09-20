@@ -103,7 +103,7 @@ export default class EditorScrollbox extends React.Component<EditorScrollboxProp
                     scrollArea={ this.props.height }
                     scrollMax={ this.props.rowCount }
                     scrollTo={ this.props.scrollTo }
-                    doScroll={ this.props.doScroll.bind(this) }/>
+                    doScroll={ this.props.doScroll }/>
             </div>);
     }
 }

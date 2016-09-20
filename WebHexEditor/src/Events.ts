@@ -8,4 +8,8 @@
             window.dispatchEvent(event);
         }
     }
+
+    export function forgetFocus() {
+        stealFocus(null);
+    }
 }

@@ -41,12 +41,32 @@ export default class DataCache {
         let page = this.findPage(pageBase);
 
         if (!page) {
-            console.warn("<BUG> Why setByte was called on invalidated page?");
+            // Sometimes setByte can be called on invalidated page
             return;
         }
 
         // Updating byte in cache
         page.pageData[pageDataOffs] = value;
+    }
+
+    public insertByte(offs: number, value: number) {
+        // Single-byte insertion should be also transparent
+        // Unfortunately, sometimes we need to invalidate some pages
+        let pageBase = Math.floor(offs / CACHE_PAGE_SIZE) * CACHE_PAGE_SIZE;
+        let pageDataOffs = offs % CACHE_PAGE_SIZE;
+        let page = this.findPage(pageBase);
+
+        if (!page) {
+            // Sometimes insertByte can be called on invalidated page
+            return;
+        }
+
+        // Updating byte in cache
+        page.pageData.splice(pageDataOffs, 0, value);
+        page.pageData = page.pageData.slice(0, CACHE_PAGE_SIZE);
+
+        // We need to invalidate other pages (most simple)
+        this.cachedPages = [page];
     }
 
     public insertPage(pageOffset: number, pageData: number[]) {
