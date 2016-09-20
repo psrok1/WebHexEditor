@@ -114,7 +114,7 @@ export default class EditorScrollbox extends React.Component<EditorScrollboxProp
     }
 
     private onWheel(ev: WheelEvent) {
-        this.setCurrentRow(Math.floor(this.state.currentRow + ev.deltaY));
+        this.onScroll(Math.floor(this.state.currentRow + ev.deltaY));
         ev.stopPropagation();
     }
 

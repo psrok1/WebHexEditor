@@ -132,6 +132,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     }
 
     private onScroll(index: number) {
+        console.log(index);
         this.setState({ scrollPos: index });
     }
 
