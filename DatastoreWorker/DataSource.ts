@@ -108,5 +108,17 @@
             // Start resolving remote blocks
             resolveNextOrigin();
         }
+
+        export function mergeToBlob(): Blob {
+            var parts = [];
+            for (var block of dataBlocks.readBlocks(0, dataBlocks.getSize())) {
+                if (block instanceof OriginIDataBlock)
+                    parts.push(fileObject.slice(block.origin_start, block.origin_end + 1));
+                else if (block instanceof ModifiedIDataBlock) {
+                    parts.push(new Int8Array(block.content).buffer);
+                }
+            }
+            return new Blob(parts, { type: "octet/stream" });
+        }
     }
 }

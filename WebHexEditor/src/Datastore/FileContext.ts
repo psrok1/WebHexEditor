@@ -77,10 +77,12 @@ export default class FileContext {
             label: "SECTION .RSRC"
         }];
 
+    private fileName: string;
     private fileSize: number;
     private onUpdateAction: () => any;
 
     constructor(file: File, onInitialized: () => any, onUpdate: () => any) {
+        this.fileName = file.name;
         this.fileSize = file.size;
         this.workerInstance = new WorkerInstance(file, onInitialized);
         this.dataCache = new DataCache();
@@ -358,5 +360,26 @@ export default class FileContext {
                 this.onUpdateAction();
             }
         );
+    }
+
+    public saveFile() {
+        var startDownload = (url: string, name: string) => {
+            var a = document.createElement("a");
+            a.style.display = "none";
+            a.href = url;
+            (a as any).download = name;
+            a.click();
+        }
+
+        this.workerInstance.sendRequest(
+            /* request */
+            new DatastoreWorker.SaveRequest(),
+            /* response handler */
+            (e: MessageEvent) => {
+                var response: DatastoreWorker.SaveResponse = e.data;
+                startDownload(response.blobURL, this.fileName);
+                window.URL.revokeObjectURL(response.blobURL);
+                this.onUpdateAction();
+            });
     }
 }

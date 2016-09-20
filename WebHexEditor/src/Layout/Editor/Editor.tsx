@@ -76,6 +76,15 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
             });
     }
 
+    private blockAndWait(reason: string) {
+        this.cancelSelection();
+        this.setState({
+            interactivity: InteractivityState.HardWaiting,
+            waitingTitle: reason,
+            waitingProgress: 0
+        });
+    }
+
     /*** RESIZE ***/
     private onResize() {
         var dimensions = {
@@ -355,6 +364,12 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
     private onEditorMouseDown(ev: MouseEvent) {
         this.cancelSelection();
         ev.preventDefault();
+    }
+
+    /*** EXTERNAL ACTIONS ***/
+    public saveFile() {
+        this.blockAndWait("Saving file...");
+        this.fileContext.saveFile();
     }
 
     /*** RENDERING ***/

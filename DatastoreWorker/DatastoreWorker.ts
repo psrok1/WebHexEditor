@@ -80,12 +80,15 @@ module DatastoreWorker {
         }
 
         protected onReadRequest(request: ReadRequest) {
-            console.time("READING BYTES");
             DataSource.readBytes(request.offset, request.length,
                 function (offs: number, data: number[]) {
-                    console.timeEnd("READING BYTES");
                     self.postMessage(new ReadResponse(offs, data));
                 });
+        }
+
+        protected onSaveRequest(request: SaveRequest) {
+            var blob = DataSource.mergeToBlob();
+            self.postMessage(new SaveResponse(URL.createObjectURL(blob)));
         }
     }
 

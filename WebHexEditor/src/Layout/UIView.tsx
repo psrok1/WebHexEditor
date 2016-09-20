@@ -3,6 +3,7 @@
 import { UINavbar, UINavbarItem } from "./UINavbar";
 import LoadModal from "./LoadModal";
 import { layout } from "./Base";
+import { Events } from "../Events";
 
 interface UIViewState {
     loadModalOpened?: boolean;
@@ -22,6 +23,10 @@ export default class UIView extends React.Component<{}, UIViewState>
                 break;
             case UINavbarItem.OpenFile:
                 this.setState({ loadModalOpened: true });
+                break;
+            case UINavbarItem.SaveFile:
+                if (Events.getFocusedEditor())
+                    Events.getFocusedEditor().saveFile();
                 break;
             default:
                 throw new Error("Selected unexpected UINavbarItem");

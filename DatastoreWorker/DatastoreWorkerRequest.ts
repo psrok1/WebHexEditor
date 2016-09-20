@@ -7,6 +7,7 @@ module DatastoreWorker {
         InitializeRequest,  // Applies data object to worker
         UndoRequest,        // Undoing last operation
         RedoRequest,        // Redoing last undoed operation
+        SaveRequest,        // Saving whole file to blob URL
         CloseRequest,       // Terminating worker
 
         InsertRequest,      // Inserts bytes into file
@@ -17,7 +18,8 @@ module DatastoreWorker {
 
         SuccessResponse,    // Operation completed successfully
         ErrorResponse,      // Error occured
-        ReadResponse        // Read operation completed
+        ReadResponse,       // Read operation completed
+        SaveResponse        // Blob URL generated
     }
 
     export abstract class Message {
@@ -32,6 +34,7 @@ module DatastoreWorker {
         protected onInitializeRequest(request: InitializeRequest) { }
         protected onUndoRequest(request: UndoRequest) { }
         protected onRedoRequest(request: RedoRequest) { }
+        protected onSaveRequest(request: RedoRequest) { }
         protected onCloseRequest(request: CloseRequest) { }
 
         protected onInsertRequest(request: InsertRequest) { }
@@ -43,6 +46,7 @@ module DatastoreWorker {
         protected onSuccessResponse(response: SuccessResponse) { }
         protected onErrorResponse(response: ErrorResponse) { }
         protected onReadResponse(response: ReadResponse) { }
+        protected onSaveResponse(response: ReadResponse) { }
 
         /**
          * Translates message and calls suitable processing method
@@ -56,6 +60,8 @@ module DatastoreWorker {
                     return this.onUndoRequest(<UndoRequest>message);
                 case MessageType.RedoRequest:
                     return this.onRedoRequest(<RedoRequest>message);
+                case MessageType.SaveRequest:
+                    return this.onSaveRequest(<SaveRequest>message);
                 case MessageType.CloseRequest:
                     return this.onCloseRequest(<CloseRequest>message);
                 case MessageType.InsertRequest:
@@ -72,6 +78,8 @@ module DatastoreWorker {
                     return this.onErrorResponse(<ErrorResponse>message);
                 case MessageType.ReadResponse:
                     return this.onReadResponse(<ReadResponse>message);
+                case MessageType.SaveResponse:
+                    return this.onSaveResponse(<ReadResponse>message);
             }
         }
     }
@@ -98,6 +106,12 @@ module DatastoreWorker {
     export class RedoRequest extends Message {
         constructor() {
             super(MessageType.RedoRequest);
+        }
+    }
+
+    export class SaveRequest extends Message {
+        constructor() {
+            super(MessageType.SaveRequest);
         }
     }
 
@@ -177,6 +191,15 @@ module DatastoreWorker {
             super(MessageType.ReadResponse);
             this.offset = offset;
             this.data = data;
+        }
+    }
+
+    export class SaveResponse extends Message {
+        blobURL: string
+
+        constructor(blobURL: string) {
+            super(MessageType.SaveResponse);
+            this.blobURL = blobURL;
         }
     }
 }

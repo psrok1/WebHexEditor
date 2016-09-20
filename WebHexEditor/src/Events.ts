@@ -17,4 +17,8 @@ export namespace Events {
     export function forgetFocus() {
         stealFocus(null);
     }
+
+    export function getFocusedEditor(): Editor {
+        return focusedEditor;
+    }
 }
