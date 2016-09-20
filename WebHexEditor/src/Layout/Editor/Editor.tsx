@@ -1,5 +1,4 @@
 ﻿import * as React from "react";
-import { AutoSizer, VirtualScroll } from "react-virtualized"
 import FileContext, { FileRow } from "../../Datastore/FileContext"
 import EditorRow from "./EditorRow"
 import EditorScrollbox from "./EditorScrollbox"
@@ -25,6 +24,10 @@ interface EditorState {
     interactivity?: InteractivityState;
     scrollPos?: number;
     visibleRows?: number;
+    dimensions?: {
+        height: number;
+        width: number;
+    }
 
     selectionStart?: number;
     selectionEnd?: number;
@@ -41,6 +44,10 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             interactivity: InteractivityState.Initializing,
             selectionStart: null,
             selectionEnd: null,
+            dimensions: {
+                width: 0,
+                height: 0
+            },
             scrollPos: 0,
             visibleRows: null,
             asciiMode: false
@@ -59,8 +66,16 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     }
 
     /*** RESIZE ***/
-    private onResize(dimensions: { height: number, width: number }) {
-        this.setState({ "visibleRows": Math.ceil(dimensions.height / EditorRowHeight) });
+    private onResize() {
+        var dimensions = {
+            height: this.props.glContainer.height,
+            width: this.props.glContainer.width
+        };
+        console.log("y " + dimensions.width + " - x " + dimensions.height);
+        this.setState({
+            visibleRows: Math.ceil(dimensions.height / EditorRowHeight),
+            dimensions: dimensions
+        });
     }
 
     /*** SELECTION ***/
@@ -201,6 +216,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
     componentWillMount() {
         window.addEventListener("focusStolen", this.onFocusStolenCallback);
+        this.props.glContainer.on("resize", this.onResize.bind(this));
     }
 
     componentWillUnmount() {
@@ -281,31 +297,26 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
     render() {
         return (
-            <AutoSizer onResize={this.onResize.bind(this)}>
-                {(dimensions: { width: number, height: number }) =>
-                    (<div
-                        className="editor"
-                        style={{ position: "relative" }}
-                        onMouseDown={ this.onEditorMouseDown.bind(this) } >
-                        <EditorScrollbox
-                            width={dimensions.width}
-                            height={dimensions.height}
-                            rowCount={this.fileContext.getNumberOfRows() }
-                            rowRenderer={ this.renderRow.bind(this) } 
-                            rowHeight={EditorRowHeight}
-                            rowScroll={this.state.scrollPos}
-                            onScroll={ this.onScroll.bind(this) }
-                            />
-                        <div style={{
-                            position: "absolute",
-                            width: dimensions.width,
-                            height: dimensions.height,
-                            top: "0px",
-                            display: (this.state.interactivity <= InteractivityState.HardWaiting)
-                                ? "block" : "none"
-                        }}>WAIT...</div>
-                    </div>) }
-            </AutoSizer>
-        )
+            <div className="editor"
+                style={{ position: "relative" }}
+                onMouseDown={ this.onEditorMouseDown.bind(this) } >
+                <EditorScrollbox
+                    width={this.state.dimensions.width}
+                    height={this.state.dimensions.height}
+                    rowCount={this.fileContext.getNumberOfRows() }
+                    rowRenderer={ this.renderRow.bind(this) }
+                    rowHeight={EditorRowHeight}
+                    rowScroll={this.state.scrollPos}
+                    onScroll={ this.onScroll.bind(this) }
+                    />
+                <div style={{
+                    position: "absolute",
+                    width: this.state.dimensions.width,
+                    height: this.state.dimensions.height,
+                    top: "0px",
+                    display: (this.state.interactivity <= InteractivityState.HardWaiting)
+                        ? "block" : "none"
+                }}>WAIT...</div>
+            </div>);
     }
 }

@@ -61,6 +61,6 @@ export function initLayout(container: HTMLElement) {
     layout.init();
 
     window.addEventListener("resize", (ev: UIEvent) => {
-        layout.updateSize();    
+        layout.updateSize(); 
     });
 }
