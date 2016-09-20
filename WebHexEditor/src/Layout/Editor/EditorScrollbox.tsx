@@ -4,34 +4,23 @@ interface EditorScrollbarProps {
     scrollArea: number;
     scrollMax: number;
     scrollTo: number;
-    onScroll?: (index: number) => any;
+    doScroll: (index: number) => any;
 }
 
-interface EditorScrollbarState {
-    scrollPos?: number;
-}
-
-class EditorScrollbar extends React.Component<EditorScrollbarProps, EditorScrollbarState> {
+class EditorScrollbar extends React.Component<EditorScrollbarProps, {}> {
     constructor() {
         super();
-        this.state = { scrollPos: 0 };
-    }
-
-    componentWillReceiveProps(nextProps: EditorScrollbarProps) {
-        this.setState({
-            scrollPos: nextProps.scrollTo
-        });
     }
 
     private evaluatePos() {
         var step = Math.max(1.0, this.props.scrollMax / this.props.scrollArea);
-        return Math.floor(this.state.scrollPos / step) + "px";
+        return Math.floor(this.props.scrollTo / step) + "px";
     }
 
     private startDrag(ev: MouseEvent) {
         var that = this;
         var mouseY = ev.screenY;
-        var initialPos = this.state.scrollPos;
+        var initialPos = this.props.scrollTo;
 
         var keepInRange = (val: number, min: number, max: number) =>
             Math.max(min, Math.min(max, val));
@@ -40,9 +29,7 @@ class EditorScrollbar extends React.Component<EditorScrollbarProps, EditorScroll
             var dy = ev.screenY - mouseY;
             var step = Math.max(1.0, that.props.scrollMax / that.props.scrollArea);
             var pos = Math.floor(keepInRange(initialPos + (dy * step), 0, that.props.scrollMax - 1));
-
-            that.setState({ scrollPos: pos });
-            that.props.onScroll(pos);
+            that.props.doScroll(pos);
         }
 
         function onStopDrag(ev: MouseEvent) {
@@ -84,51 +71,23 @@ interface EditorScrollboxProps {
     rowRenderer: (index: number) => JSX.Element;
     rowCount: number;
     rowHeight: number;
-    rowScroll?: number;
-    onScroll?: (currentRow: number) => any;
+    scrollTo: number;
+    doScroll: (index: number) => any;
 }
 
-interface EditorScrollboxState {
-    currentRow?: number;
-}
-
-export default class EditorScrollbox extends React.Component<EditorScrollboxProps, EditorScrollboxState> {
-    constructor() {
-        super();
-        this.state = { currentRow: 0 };
-    }
-
-    private setCurrentRow(index: number) {
-        index = Math.max(0, index);
-        index = Math.min(this.props.rowCount - 1, index);
-
-        if (this.state.currentRow != index)
-            this.setState({ currentRow: index });
-    }
-
-    private onScroll(index: number) {
-        if (this.props.onScroll)
-            this.props.onScroll(index);
-        this.setCurrentRow(index);
-    }
-
+export default class EditorScrollbox extends React.Component<EditorScrollboxProps, {}> {
     private onWheel(ev: WheelEvent) {
-        this.onScroll(Math.floor(this.state.currentRow + ev.deltaY));
+        this.props.doScroll(Math.floor(this.props.scrollTo + ev.deltaY));
         ev.stopPropagation();
-    }
-
-    componentWillReceiveProps(nextProps: EditorScrollboxProps) {
-        if (nextProps.rowScroll != this.state.currentRow)
-            this.setCurrentRow(nextProps.rowScroll);
     }
 
     render() {
         var rowsPerView = Math.ceil(this.props.height / this.props.rowHeight);
         var rows: Array<JSX.Element> = []
         for (var i = 0; i < rowsPerView; i++) {
-            if ((this.state.currentRow + i) >= this.props.rowCount)
+            if ((this.props.scrollTo + i) >= this.props.rowCount)
                 break;
-            rows.push(this.props.rowRenderer(this.state.currentRow + i));
+            rows.push(this.props.rowRenderer(this.props.scrollTo + i));
         }
 
         return (
@@ -143,8 +102,8 @@ export default class EditorScrollbox extends React.Component<EditorScrollboxProp
                 <EditorScrollbar
                     scrollArea={ this.props.height }
                     scrollMax={ this.props.rowCount }
-                    scrollTo={ this.state.currentRow }
-                    onScroll={ this.onScroll.bind(this) }/>
+                    scrollTo={ this.props.scrollTo }
+                    doScroll={ this.props.doScroll.bind(this) }/>
             </div>);
     }
 }

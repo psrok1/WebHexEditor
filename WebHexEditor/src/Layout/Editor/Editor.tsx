@@ -131,6 +131,8 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     }
 
     private onScroll(index: number) {
+        index = Math.max(0, index);
+        index = Math.min(this.fileContext.getNumberOfRows() - 1, index);
         this.setState({ scrollPos: index });
     }
 
@@ -313,8 +315,8 @@ export class Editor extends React.Component<EditorProps, EditorState> {
                     rowCount={this.fileContext.getNumberOfRows() }
                     rowRenderer={ this.renderRow.bind(this) }
                     rowHeight={EditorRowHeight}
-                    rowScroll={this.state.scrollPos}
-                    onScroll={ this.onScroll.bind(this) }
+                    scrollTo={this.state.scrollPos}
+                    doScroll={ this.onScroll.bind(this) }
                     />
                 <EditorOverlay
                     visible={this.state.interactivity == InteractivityState.HardWaiting}
