@@ -1,13 +1,22 @@
 ﻿import * as React from "react";
-import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from "react-bootstrap";
+import { Navbar, Nav, NavItem, NavDropdown, MenuItem, Glyphicon } from "react-bootstrap";
 
 interface UINavbarProps {
     onSelect: (selectedItem: UINavbarItem, event?: React.SyntheticEvent) => any;
 }
 
 export enum UINavbarItem {
+    Submenu,
+    NewFile,
     OpenFile,
-    Something
+    SaveFile,
+    Undo,
+    Redo,
+    InsertionMode,
+    Cut,
+    Copy,
+    Paste,
+    FillWith
 }
 
 export class UINavbar extends React.Component<UINavbarProps, {}> {
@@ -22,14 +31,47 @@ export class UINavbar extends React.Component<UINavbarProps, {}> {
                 </Navbar.Header>
                 <Navbar.Collapse>
                     <Nav onSelect={this.props.onSelect}>
-                        <NavItem eventKey={UINavbarItem.OpenFile} href="#">Open file</NavItem>
-                        <NavItem eventKey={UINavbarItem.Something} href="#">Link</NavItem>
-                        <NavDropdown eventKey={UINavbarItem.Something} title="Dropdown" id="basic-nav-dropdown">
-                            <MenuItem eventKey={UINavbarItem.Something}>Action</MenuItem>
-                            <MenuItem eventKey={UINavbarItem.Something}>Another action</MenuItem>
-                            <MenuItem eventKey={UINavbarItem.Something}>Something else here</MenuItem>
+                        <NavDropdown eventKey={UINavbarItem.Submenu} title="File" id="basic-nav-dropdown">
+                            <MenuItem eventKey={UINavbarItem.NewFile}>
+                                <Glyphicon glyph="file" />
+                                New
+                            </MenuItem>
+                            <MenuItem eventKey={UINavbarItem.OpenFile}>
+                                <Glyphicon glyph="open" />
+                                Open
+                            </MenuItem>
+                            <MenuItem eventKey={UINavbarItem.SaveFile}>
+                                <Glyphicon glyph="save" />
+                                Save
+                            </MenuItem>
+                        </NavDropdown>
+                        <NavDropdown eventKey={UINavbarItem.Submenu} title="Edit" id="basic-nav-dropdown">
+                            <MenuItem eventKey={UINavbarItem.Undo}>
+                                <Glyphicon glyph="erase" />
+                                Undo
+                            </MenuItem>
+                            <MenuItem eventKey={UINavbarItem.Redo}>
+                                <Glyphicon glyph="repeat" />
+                                Redo
+                            </MenuItem>
                             <MenuItem divider />
-                            <MenuItem eventKey={UINavbarItem.Something}>Separated link</MenuItem>
+                            <MenuItem eventKey={UINavbarItem.Cut}>
+                                <Glyphicon glyph="scissors" />
+                                Cut
+                            </MenuItem>
+                            <MenuItem eventKey={UINavbarItem.Copy}>
+                                <Glyphicon glyph="copy" />
+                                Copy
+                            </MenuItem>
+                            <MenuItem eventKey={UINavbarItem.Paste}>
+                                <Glyphicon glyph="paste" />
+                                Paste
+                            </MenuItem>
+                            <MenuItem divider />
+                            <MenuItem eventKey={UINavbarItem.FillWith}>
+                                <Glyphicon glyph="pencil" />
+                                Fill with...
+                            </MenuItem>
                         </NavDropdown>
                     </Nav>
                     <Nav pullRight>

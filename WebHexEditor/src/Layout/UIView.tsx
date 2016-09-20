@@ -20,9 +20,6 @@ export default class UIView extends React.Component<{}, UIViewState>
             case UINavbarItem.OpenFile:
                 this.setState({ loadModalOpened: true });
                 break;
-            case UINavbarItem.Something:
-                alert("Something happened");
-                break;
             default:
                 throw new Error("Selected unexpected UINavbarItem");
         }

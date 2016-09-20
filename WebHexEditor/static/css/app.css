@@ -6,7 +6,10 @@
 
 /* EditorRow.tsx */
 
-.editor-row { }
+.editor-row { 
+    white-space: nowrap;
+}
+
 .editor-section-row { }
 
 .editor-cell {
@@ -19,7 +22,7 @@
 }
 
 .editor-sec-label {
-    color: gray;
+    color: gray;    
 }
 
 .editor-offs-cell {
@@ -76,6 +79,11 @@
     position: absolute;
     width: 100%;
     height: 80%;
+}
+
+/* UINavbar.tsx */
+.glyphicon {
+    padding-right: 8px;
 }
 
 body {

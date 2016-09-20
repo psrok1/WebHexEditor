@@ -23,13 +23,15 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="static\bootstrap\css\bootstrap-theme.css" />
+    <Content Include="static\bootstrap\css\bootstrap-theme.min.css" />
+    <Content Include="static\bootstrap\css\bootstrap.css" />
+    <Content Include="static\bootstrap\css\bootstrap.min.css" />
+    <Content Include="static\bootstrap\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="static\css\app.css" />
     <Content Include="index.html" />
-    <Content Include="static\css\dev\bootstrap-theme.min.css" />
-    <Content Include="static\css\dev\bootstrap.min.css" />
     <Content Include="static\css\dev\goldenlayout-base.css" />
     <Content Include="static\css\dev\goldenlayout-dark-theme.css" />
-    <Content Include="static\css\dev\react-virtualized.css" />
     <Content Include="web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -62,6 +64,14 @@
     <Content Include="typings.json" />
     <Content Include="packages.config" />
     <Content Include="tsconfig.json" />
+    <Content Include="static\bootstrap\css\bootstrap-theme.css.map" />
+    <Content Include="static\bootstrap\css\bootstrap-theme.min.css.map" />
+    <Content Include="static\bootstrap\css\bootstrap.css.map" />
+    <Content Include="static\bootstrap\css\bootstrap.min.css.map" />
+    <Content Include="static\bootstrap\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="static\bootstrap\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="static\bootstrap\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="static\bootstrap\fonts\glyphicons-halflings-regular.woff2" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
