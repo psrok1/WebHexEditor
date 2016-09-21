@@ -210,3 +210,11 @@ Proponowany szkielet klas:
         |   |_ SectionRow
         |
         |_ Cell
+
+------------------------------------------
+- HTML5 HexEditor                        -
+- DRAFT 20160920                         -
+-                                        -
+- Paweł Srokosz (C) 2016                 -
+------------------------------------------
+

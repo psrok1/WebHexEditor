@@ -10,6 +10,7 @@ export enum UINavbarItem {
     NewFile,
     OpenFile,
     SaveFile,
+    SelectAll,
     Undo,
     Redo,
     InsertionMode,
@@ -46,6 +47,11 @@ export class UINavbar extends React.Component<UINavbarProps, {}> {
                             </MenuItem>
                         </NavDropdown>
                         <NavDropdown eventKey={UINavbarItem.Submenu} title="Edit" id="basic-nav-dropdown">
+                            <MenuItem eventKey={UINavbarItem.SelectAll}>
+                                <Glyphicon glyph="align-justify" />
+                                Select all
+                            </MenuItem>
+                            <MenuItem divider />
                             <MenuItem eventKey={UINavbarItem.Undo}>
                                 <Glyphicon glyph="erase" />
                                 Undo

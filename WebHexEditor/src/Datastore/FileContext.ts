@@ -362,6 +362,31 @@ export default class FileContext {
         );
     }
 
+    public deleteBytes(position: number, bytes: number) {
+        // Deleting EOF isn't good idea
+        if (position >= this.fileSize)
+            return;
+
+        // Pre-request size "prediction"
+        if ((position + bytes - 1) < this.fileSize)
+            this.fileSize -= bytes;
+        else
+            this.fileSize = position;
+
+        this.invalidateLayout();
+        this.dataCache.invalidate();
+
+        this.workerInstance.sendRequest(
+            /* request */
+            new DatastoreWorker.RemoveRequest(position, bytes),
+            /* response handler */
+            (e: MessageEvent) => {
+                var response: DatastoreWorker.SuccessResponse = e.data;
+                this.fileSize = response.newFileSize;
+                this.onUpdateAction();
+            });
+    }
+
     public saveFile() {
         var startDownload = (url: string, name: string) => {
             var a = document.createElement("a");

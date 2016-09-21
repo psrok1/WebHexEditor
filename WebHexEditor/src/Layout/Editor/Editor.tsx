@@ -184,7 +184,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
             });
         } else {
             // Selecting next row
-            s = (moveOffset < 0 ? Math.min : Math.max)(this.state.selectionStart, this.state.selectionEnd);
+            s = (moveOffset <= 0 ? Math.min : Math.max)(this.state.selectionStart, this.state.selectionEnd);
             s = Math.min(this.fileContext.getFileSize(),
                 Math.max(0, s + moveOffset));
             this.focusScroll(s);
@@ -256,6 +256,9 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
     }
 
     private onKeyDown(ev: KeyboardEvent) {
+        var rowsPerView = Math.ceil(this.state.dimensions.height / EditorRowHeight);
+
+        console.log(ev.key);
         switch (ev.key) {
             case "ArrowDown":
                 this.moveSelection(16, ev.shiftKey);
@@ -268,6 +271,18 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                 break;
             case "ArrowRight":
                 this.moveSelection(1, ev.shiftKey);
+                break;
+            case "PageUp":
+                this.moveSelection(-rowsPerView * 16 /*width*/, ev.shiftKey);
+                break;
+            case "PageDown":
+                this.moveSelection(rowsPerView * 16 /*width*/, ev.shiftKey);
+                break;
+            case "Home":
+                this.moveSelection(-(this.state.selectionEnd % 16), ev.shiftKey);
+                break;
+            case "End":
+                this.moveSelection(15-(this.state.selectionEnd % 16), ev.shiftKey);
                 break;
             case "Escape":
                 this.cancelSelection();
@@ -286,6 +301,26 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                         partialEdit: null
                     });
                 break;
+            case "Delete":
+                if (this.state.selectionStart !== null) {
+                    console.log("Delete for sure");
+                    var selStart = Math.min(this.state.selectionStart, this.state.selectionEnd);
+                    var selEnd = Math.max(this.state.selectionStart, this.state.selectionEnd);
+
+                    this.fileContext.deleteBytes(
+                        selStart, selEnd - selStart + 1);
+                    if (selStart > (this.fileContext.getFileSize() - 1))
+                        this.moveSelection(this.fileContext.getFileSize() - selStart);
+                    else
+                        this.moveSelection(0);
+                }
+                break;
+            case "Backspace":
+                // non-zero
+                if (this.state.selectionStart && this.state.selectionEnd) {
+                    this.moveSelection(-1);
+                    this.fileContext.deleteBytes(this.state.selectionStart, 1);
+                }
             default:
                 this.onEditKeyDown(ev);
                 return;
@@ -415,8 +450,8 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                     height={this.state.dimensions.height}
                     rowCount={this.fileContext.getNumberOfRows() }
                     rowRenderer={ this.renderRow.bind(this) }
-                    rowHeight={EditorRowHeight}
-                    scrollTo={this.state.scrollPos}
+                    rowHeight={ EditorRowHeight }
+                    scrollTo={this.state.scrollPos }
                     doScroll={ this.onScroll.bind(this) }
                     />
                 <EditorOverlay
