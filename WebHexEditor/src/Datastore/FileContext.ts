@@ -112,13 +112,13 @@ export default class FileContext {
         var rowsNumber = Math.ceil((this.fileSize + 1) / width);
         for (var section of this.sections)
         {
-            if (section.offset > (this.fileSize + 1))
+            if (section.offset >= (this.fileSize + 1))
                 break;
 
             if (section.offset % width != 0)
-                rowsNumber += 2;
-            else
                 rowsNumber += 1;
+
+            rowsNumber += 1;
         }
         return rowsNumber;
     }
@@ -168,44 +168,70 @@ export default class FileContext {
         var currentRow: number;
 
         if (predSectionIndex === null) {
+            // If row is not preceded by section: we can do simple calculation
             currentOffset = rowNo * width;
             currentRow = rowNo;
         } else {
+            // If it has a predecessor
             currentOffset = this.sections[predSectionIndex].offset;
             currentRow = predSectionRow;
 
+            // currentRow is row for section
+            // currentRow+1 is row with offset described by currentOffset
+
             if (rowNo >= currentRow + 2)
-                currentOffset += width - (currentOffset % width) + width * (rowNo - currentRow - 2);
+                currentOffset += width * (rowNo - currentRow - 1) - (currentOffset % width);
 
             currentRow = rowNo;
         }
+
+        if (currentOffset >= size)
+        {
+            console.error("<BUG> Request to getFileLayout with row, which doesn't exist");
+            return {
+                layout: [],
+                rowStart: rowNo,
+                width: width
+            };
+        }
+
+        console.log("--------------------");
+        console.log("row=" + currentRow + " offs=" + currentOffset);
+
+        var baseValue = (off: number) => Math.floor(off / width) * width;
+
+        console.log("size=" + size);
         // Build layout array
         while (layout.length < rowsLimit && currentOffset < size) {
-            if (succSectionIndex !== null && currentOffset >= this.sections[succSectionIndex].offset) {
-                // Section?
-                layout.push({
-                    offset: this.sections[succSectionIndex].offset,
-                    section: this.sections[succSectionIndex]
-                });
-                // Rows limit reached?
-                if (layout.length >= rowsLimit)
-                    break;
-                // Current offset is section offset
-                currentOffset = this.sections[succSectionIndex].offset;
-                // Middle-section?
-                if (this.sections[succSectionIndex].offset % width !== 0) {
-                    var diff = width - (this.sections[succSectionIndex].offset % width);
-                    // Trim data block before this section
-                    if (layout.length > 2 && !layout[layout.length - 2].section) {
-                        layout[layout.length - 2].dataLength -= diff;
-                    }
+            // My row is breaked by section? (or is it section row?)
+            if (succSectionIndex !== null &&
+                baseValue(this.sections[succSectionIndex].offset) == baseValue(currentOffset)) {
+                var succSectionOffset = this.sections[succSectionIndex].offset;
+                // I'm just before section, which is breaking my row
+                if (succSectionOffset > currentOffset) {
+                    console.log("Just before section offs=" + currentOffset);
+                    layout.push({
+                        offset: currentOffset,
+                        dataLength: succSectionOffset - currentOffset
+                    });
+                    currentOffset = succSectionOffset;
+                    console.log("offs now=" + currentOffset);
                 }
+                // That's section row
+                else if (succSectionOffset == currentOffset) {
+                    console.log("Section row offs=" + currentOffset);
+                    layout.push({
+                        offset: succSectionOffset,
+                        section: this.sections[succSectionIndex]
+                    });
 
-                // Find next succ-section
-                succSectionIndex += 1;
-                if (succSectionIndex >= this.sections.length)
-                    succSectionIndex = null;
+                    // Find next succ-section
+                    succSectionIndex += 1;
+                    if (succSectionIndex >= this.sections.length)
+                        succSectionIndex = null;
+                }
             } else {
+                console.log("Data row offs=" + currentOffset);
                 // Add data block
                 var diff = width - (currentOffset % width);
                 layout.push({

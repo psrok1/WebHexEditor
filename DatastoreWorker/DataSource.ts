@@ -22,9 +22,6 @@
                     * address range of chunk being loaded
                     * related IDataBlocks
             */
-            console.time("readBytes");
-            console.log("offs=" + offs + " len=" + len);
-
             class OriginToResolve {
                 origin_start: number;
                 origin_end: number;
@@ -60,11 +57,9 @@
                 var originBeingResolved = originsToResolve.pop();
                 // If queue is empty: pass loaded data to target
                 if (!originBeingResolved) {
-                    console.timeEnd("readBytes");
                     cbreader(offs, data);
                     return;
                 }
-                console.log("next origin: " + originBeingResolved.origin_start + "..." + originBeingResolved.origin_end);
                 // If chunk is loaded from file: process
                 fileReader.onloadend = (evt: any) => {
                     if (evt.target.readyState != 2)

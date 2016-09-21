@@ -230,9 +230,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
             if (byte < 0)
                 return false;
 
-            console.log(byte);
-
-            if (!this.state.partialEdit) {
+            if (this.state.partialEdit === null) {
                 // First nibble?
                 // Set it and wait for more
                 if (this.state.insertionMode)
@@ -258,7 +256,6 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
     private onKeyDown(ev: KeyboardEvent) {
         var rowsPerView = Math.ceil(this.state.dimensions.height / EditorRowHeight);
 
-        console.log(ev.key);
         switch (ev.key) {
             case "ArrowDown":
                 this.moveSelection(16, ev.shiftKey);
@@ -282,6 +279,7 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                 this.moveSelection(-(this.state.selectionEnd % 16), ev.shiftKey);
                 break;
             case "End":
+                /* width related */
                 this.moveSelection(15-(this.state.selectionEnd % 16), ev.shiftKey);
                 break;
             case "Escape":
@@ -303,7 +301,6 @@ export default class Editor extends React.Component<EditorProps, EditorState> {
                 break;
             case "Delete":
                 if (this.state.selectionStart !== null) {
-                    console.log("Delete for sure");
                     var selStart = Math.min(this.state.selectionStart, this.state.selectionEnd);
                     var selEnd = Math.max(this.state.selectionStart, this.state.selectionEnd);
 

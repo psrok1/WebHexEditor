@@ -57,7 +57,6 @@
     <TypeScriptCompile Include="src\Layout\LoadModal.tsx" />
     <TypeScriptCompile Include="src\Layout\UINavbar.tsx" />
     <TypeScriptCompile Include="src\Layout\UIView.tsx" />
-    <TypeScriptCompile Include="src\Tests.ts" />
     <TypeScriptCompile Include="typings\index.d.ts" />
   </ItemGroup>
   <ItemGroup>
